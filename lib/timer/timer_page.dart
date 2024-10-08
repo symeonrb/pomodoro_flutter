@@ -37,86 +37,58 @@ class TimerPage extends StatelessWidget {
               useMaterial3: true,
             ),
             child: Scaffold(
+              appBar: AppBar(
+                backgroundColor: colorScheme.inversePrimary,
+                leading: IconButton(
+                  onPressed: () {
+                    context.read<TimerCubit>().cancel();
+                    Navigator.of(context).pop();
+                  },
+                  icon: const Icon(Icons.close),
+                ),
+              ),
               backgroundColor: colorScheme.inversePrimary,
-              body: const TimerScreen(),
+              body: ListView(
+                children: [
+                  const Center(child: Counter()),
+                  const SizedBox(height: 60),
+                  BlocSelector<TimerCubit, TimerState?, bool>(
+                    selector: (timer) => timer?.working ?? true,
+                    builder: (context, working) {
+                      return Text(
+                        working ? 'Au boulot !' : "Une pause s'impose",
+                        style: Theme.of(context).textTheme.displayMedium,
+                        textAlign: TextAlign.center,
+                      );
+                    },
+                  ),
+                ],
+              ),
+              bottomNavigationBar: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () => context
+                          .read<TimerCubit>()
+                          .cheat(dontWait: const Duration(minutes: -5)),
+                      child: const Text('+5 min'),
+                    ),
+                    const SizedBox(height: 20),
+                    TextButton(
+                      onPressed: () => context
+                          .read<TimerCubit>()
+                          .cheat(dontWait: const Duration(seconds: -10)),
+                      child: const Text('+10 sec'),
+                    ),
+                  ],
+                ),
+              ),
             ),
           );
         },
       ),
-    );
-  }
-}
-
-class TimerScreen extends StatelessWidget {
-  const TimerScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(height: 100),
-        const Counter(),
-        const SizedBox(height: 20),
-        IconTheme(
-          data: IconThemeData(
-            color: Theme.of(context).colorScheme.primary,
-            size: 40,
-          ),
-          child: BlocSelector<TimerCubit, TimerState?, bool>(
-            selector: (timer) => timer?.isRunning ?? false,
-            builder: (context, isRunning) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(
-                    onPressed: () => context
-                        .read<TimerCubit>()
-                        .cheat(dontWait: const Duration(minutes: -5)),
-                    child: const Text('+5 min'),
-                  ),
-                  const SizedBox(height: 20),
-                  if (isRunning)
-                    IconButton(
-                      onPressed: context.read<TimerCubit>().pause,
-                      icon: const Icon(Icons.pause),
-                    )
-                  else
-                    IconButton(
-                      onPressed: context.read<TimerCubit>().resume,
-                      icon: const Icon(Icons.play_arrow),
-                    ),
-                  const SizedBox(width: 40),
-                  IconButton(
-                    onPressed: () {
-                      context.read<TimerCubit>().cancel();
-                      Navigator.of(context).pop();
-                    },
-                    icon: const Icon(Icons.close),
-                  ),
-                  const SizedBox(height: 20),
-                  TextButton(
-                    onPressed: () => context
-                        .read<TimerCubit>()
-                        .cheat(dontWait: const Duration(seconds: -10)),
-                    child: const Text('+10 sec'),
-                  ),
-                ],
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 40),
-        BlocSelector<TimerCubit, TimerState?, bool>(
-          selector: (timer) => timer?.working ?? true,
-          builder: (context, working) {
-            return Text(
-              working ? 'Au boulot !' : "Une pause s'impose",
-              style: Theme.of(context).textTheme.displayMedium,
-              textAlign: TextAlign.center,
-            );
-          },
-        ),
-      ],
     );
   }
 }
@@ -152,8 +124,8 @@ class _CounterState extends State<Counter> {
 
   @override
   Widget build(BuildContext context) {
-    final timerState = context.watch<TimerCubit>().state;
-    final elapsed = timerState.timeLeft;
+    final timer = context.watch<TimerCubit>().state;
+    final elapsed = timer.timeLeft;
     final formattedElapsed =
         '${elapsed.inMinutes}:${(elapsed.inSeconds % 60).toString().padLeft(2, '0')}';
 
@@ -167,16 +139,38 @@ class _CounterState extends State<Counter> {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Center(
-            child: Text(
-              formattedElapsed,
-              style: Theme.of(context).textTheme.displayMedium,
-            ),
-          ),
           CircularProgressIndicator(
-            value: elapsed.inSeconds / timerState.duration.inSeconds,
+            value: elapsed.inSeconds / timer.duration.inSeconds,
             strokeWidth: 5,
             strokeAlign: BorderSide.strokeAlignInside,
+          ),
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 30),
+                Text(
+                  formattedElapsed,
+                  style: Theme.of(context).textTheme.displayMedium,
+                ),
+                const SizedBox(height: 10),
+                IconTheme(
+                  data: IconThemeData(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 40,
+                  ),
+                  child: timer.isRunning
+                      ? IconButton(
+                          onPressed: context.read<TimerCubit>().pause,
+                          icon: const Icon(Icons.pause),
+                        )
+                      : IconButton(
+                          onPressed: context.read<TimerCubit>().resume,
+                          icon: const Icon(Icons.play_arrow),
+                        ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
