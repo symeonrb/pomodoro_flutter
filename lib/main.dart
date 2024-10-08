@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pomodoro_flutter/generate_uid.dart';
+import 'package:pomodoro_flutter/utils.dart';
 
 void main() => runApp(const PomodoroApp());
 
@@ -54,11 +54,12 @@ class TimerState {
   bool get isRunning => pausedAt == null;
 }
 
-class TimerCubit extends Cubit<TimerState?> {
-  TimerCubit()
-      : workMinutes = 45,
-        pauseMinutes = 15,
-        super(null);
+class TimerCubit extends Cubit<TimerState> {
+  TimerCubit(
+    super.initialState, {
+    required this.workMinutes,
+    required this.pauseMinutes,
+  });
 
   int workMinutes;
   int pauseMinutes;
@@ -66,18 +67,23 @@ class TimerCubit extends Cubit<TimerState?> {
   CancelableOperation<void>? completion;
   String? completionUid;
 
+  @override
+  Future<void> close() {
+    _cancelCompletion();
+    return super.close();
+  }
+
   void cancel() {
     _cancelCompletion();
-    emit(null);
   }
 
   void pause() {
     _cancelCompletion();
-    emit(state?.paused());
+    emit(state.paused());
   }
 
   void resume() {
-    emit(state?.resumed());
+    emit(state.resumed());
     _restartCompletion();
   }
 
@@ -90,32 +96,29 @@ class TimerCubit extends Cubit<TimerState?> {
 
   void _restartCompletion() {
     _cancelCompletion();
-    print('restart');
     completionUid = generateUid();
     final completionUidAtOperationStart = completionUid;
     completion = CancelableOperation.fromFuture(
       Future.delayed(
-        state!.timeLeft,
+        state.timeLeft,
         () {
-          if (completionUidAtOperationStart != completionUid || state == null) {
+          if (completionUidAtOperationStart != completionUid) {
             return;
           }
-          debugPrint('Timer completed function executed!');
+
           emit(
             TimerState._(
               startedAt: DateTime.now(),
               pausedAt: null,
               duration: Duration(
-                minutes: state!.working ? pauseMinutes : workMinutes,
+                minutes: state.working ? pauseMinutes : workMinutes,
               ),
-              working: !state!.working,
+              working: !state.working,
             ),
           );
-
           _restartCompletion();
         },
       ),
-      onCancel: () => {debugPrint('onCancel')},
     );
   }
 
@@ -132,27 +135,13 @@ class PomodoroApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => TimerCubit(),
-      child: BlocSelector<TimerCubit, TimerState?, bool?>(
-        selector: (timer) => timer?.working,
-        builder: (context, working) {
-          return MaterialApp(
-            title: 'Pomodoro',
-            theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: working == null
-                    ? Colors.pinkAccent
-                    : working
-                        ? Colors.blue
-                        : Colors.orangeAccent,
-              ),
-              useMaterial3: true,
-            ),
-            home: const HomePage(),
-          );
-        },
+    return MaterialApp(
+      title: 'Pomodoro',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
+        useMaterial3: true,
       ),
+      home: const HomePage(),
     );
   }
 }
@@ -162,51 +151,85 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<TimerCubit, TimerState?, bool?>(
-      selector: (timer) => timer?.isRunning,
-      builder: (context, running) {
-        return AnimatedContainer(
-          duration: Durations.medium1,
-          color: Theme.of(context).colorScheme.inversePrimary,
-          child: BlocSelector<TimerCubit, TimerState?, bool>(
-            selector: (timer) => timer == null,
-            builder: (context, noTimer) {
-              if (noTimer) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FilledButton(
-                        onPressed: () => context.read<TimerCubit>().start(
-                              workMinutes: 45,
-                              pauseMinutes: 15,
-                            ),
-                        child: const Text('45 / 15'),
-                      ),
-                      FilledButton(
-                        onPressed: () => context.read<TimerCubit>().start(
-                              workMinutes: 25,
-                              pauseMinutes: 5,
-                            ),
-                        child: const Text('25 / 5'),
-                      ),
-                      FilledButton(
-                        onPressed: () => context.read<TimerCubit>().start(
-                              workMinutes: 2,
-                              pauseMinutes: 1,
-                            ),
-                        child: const Text('2 / 1'),
-                      ),
-                    ],
-                  ),
-                );
-              } else {
-                return const TimerScreen();
-              }
-            },
-          ),
-        );
-      },
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FilledButton(
+              onPressed: () => context.pushPage(
+                const TimerPage(
+                  workMinutes: 45,
+                  pauseMinutes: 15,
+                ),
+              ),
+              child: const Text('45 / 15'),
+            ),
+            FilledButton(
+              onPressed: () => context.pushPage(
+                const TimerPage(
+                  workMinutes: 25,
+                  pauseMinutes: 5,
+                ),
+              ),
+              child: const Text('25 / 5'),
+            ),
+            FilledButton(
+              onPressed: () => context.pushPage(
+                const TimerPage(
+                  workMinutes: 2,
+                  pauseMinutes: 1,
+                ),
+              ),
+              child: const Text('2 / 1'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class TimerPage extends StatelessWidget {
+  const TimerPage({
+    required this.workMinutes,
+    required this.pauseMinutes,
+    super.key,
+  });
+
+  final int workMinutes;
+  final int pauseMinutes;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => TimerCubit(
+        TimerState.start(duration: Duration(minutes: workMinutes)),
+        workMinutes: workMinutes,
+        pauseMinutes: pauseMinutes,
+      ),
+      child: BlocSelector<TimerCubit, TimerState, bool>(
+        selector: (timer) => timer.working,
+        builder: (context, working) {
+          final colorScheme = ColorScheme.fromSeed(
+            seedColor: working ? Colors.blue : Colors.orangeAccent,
+          );
+
+          return Theme(
+            data: ThemeData(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: working ? Colors.blue : Colors.orangeAccent,
+              ),
+              useMaterial3: true,
+            ),
+            child: Scaffold(
+              backgroundColor: colorScheme.inversePrimary,
+              body: const TimerScreen(),
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -236,7 +259,6 @@ class TimerScreen extends StatelessWidget {
                     onPressed: () {
                       final timerCubit = context.read<TimerCubit>();
                       final timer = timerCubit.state;
-                      if (timer == null) return;
 
                       timerCubit
                         ..emit(
@@ -265,7 +287,10 @@ class TimerScreen extends StatelessWidget {
                     ),
                   const SizedBox(width: 40),
                   IconButton(
-                    onPressed: context.read<TimerCubit>().cancel,
+                    onPressed: () {
+                      context.read<TimerCubit>().cancel();
+                      Navigator.of(context).pop();
+                    },
                     icon: const Icon(Icons.close),
                   ),
                   const SizedBox(height: 20),
@@ -273,7 +298,6 @@ class TimerScreen extends StatelessWidget {
                     onPressed: () {
                       final timerCubit = context.read<TimerCubit>();
                       final timer = timerCubit.state;
-                      if (timer == null) return;
 
                       timerCubit
                         ..emit(
@@ -341,7 +365,7 @@ class _CounterState extends State<Counter> {
 
   @override
   Widget build(BuildContext context) {
-    final timerState = context.watch<TimerCubit>().state!;
+    final timerState = context.watch<TimerCubit>().state;
     final elapsed = timerState.timeLeft;
     final formattedElapsed =
         '${elapsed.inMinutes}:${(elapsed.inSeconds % 60).toString().padLeft(2, '0')}';

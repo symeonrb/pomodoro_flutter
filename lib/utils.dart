@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
+
 // 20 chars is the default length of Firebase uids
 String generateUid({int length = 20}) {
   final random = Random();
@@ -12,4 +14,11 @@ String generateUid({int length = 20}) {
     length,
     (_) => chars[random.nextInt(chars.length)],
   ).join();
+}
+
+extension BuildContextExt on BuildContext {
+  Future<T?> pushPage<T extends Object?>(Widget page) => Navigator.push(
+        this,
+        MaterialPageRoute(builder: (_) => page),
+      );
 }
