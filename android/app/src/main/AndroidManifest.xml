@@ -6,7 +6,7 @@
     <application
         android:label="Pomodoro"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:showWhenLocked="true"
         android:turnScreenOn="true">
         <activity

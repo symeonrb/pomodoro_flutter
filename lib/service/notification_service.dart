@@ -23,7 +23,7 @@ class NotificationService {
         ?.requestNotificationsPermission();
 
     const initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@mipmap/ic_notification');
     final initializationSettingsDarwin = DarwinInitializationSettings(
       onDidReceiveLocalNotification: onDidReceiveLocalNotification,
       notificationCategories: [
@@ -78,7 +78,7 @@ class NotificationService {
     NotificationResponse notificationResponse,
   ) {
     // handle action
-    print(notificationResponse);
+    // print(notificationResponse);
   }
 
   late final FlutterLocalNotificationsPlugin _plugin;
@@ -96,7 +96,8 @@ class NotificationService {
       id,
       title,
       null,
-      tz.TZDateTime.now(tz.local).add(in_),
+      tz.TZDateTime.now(tz.local)
+          .add(in_.inSeconds < 1 ? const Duration(seconds: 1) : in_),
       const NotificationDetails(
         android: AndroidNotificationDetails(
           'pomodoro',
