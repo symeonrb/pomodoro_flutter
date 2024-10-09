@@ -2,18 +2,16 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-// 20 chars is the default length of Firebase uids
-String generateUid({int length = 20}) {
+int generateUid({int length = 5}) {
   final random = Random();
+  var uid = 0;
 
-  const chars = '0123456789'
-      'abcdefghijklmnopqrstuvwxyz'
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  for (var i = 0; i < length; i++) {
+    // Generate a random digit (0-9)
+    uid = uid * 10 + random.nextInt(10);
+  }
 
-  return List<String>.generate(
-    length,
-    (_) => chars[random.nextInt(chars.length)],
-  ).join();
+  return uid;
 }
 
 extension BuildContextExt on BuildContext {

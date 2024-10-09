@@ -8,12 +8,15 @@ environment:
   sdk: ^3.5.3
 
 dependencies:
+  async: ^2.11.0
+  cupertino_icons: ^1.0.8
   flutter:
     sdk: flutter
-
-  cupertino_icons: ^1.0.8
   flutter_bloc: ^8.1.6
-  async: ^2.11.0
+  flutter_launcher_icons: ^0.14.1
+  flutter_local_notifications: ^17.2.3
+  flutter_timezone: ^3.0.1
+  timezone: ^0.9.4
 
 dev_dependencies:
   flutter_test:
@@ -22,3 +25,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/app_icon.jpg

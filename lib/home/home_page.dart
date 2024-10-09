@@ -40,6 +40,12 @@ class HomePage extends StatelessWidget {
               ),
               child: const Text('2 / 1'),
             ),
+            // SizedBox(height: 40),
+            // FilledButton(
+            //   onPressed: () =>
+            //       NotificationService.instance.zonedScheduleNotification(),
+            //   child: const Text('Test Notif'),
+            // ),
           ],
         ),
       ),

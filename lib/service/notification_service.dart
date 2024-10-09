@@ -1,0 +1,145 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:pomodoro_flutter/main.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
+
+class NotificationService {
+  NotificationService._();
+  static final instance = NotificationService._();
+
+  static Future<void> init() async {
+    await _configureLocalTimeZone();
+
+    instance._plugin = FlutterLocalNotificationsPlugin();
+    await instance._plugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
+
+    const initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    final initializationSettingsDarwin = DarwinInitializationSettings(
+      onDidReceiveLocalNotification: onDidReceiveLocalNotification,
+      notificationCategories: [
+        DarwinNotificationCategory(
+          'demoCategory',
+          actions: <DarwinNotificationAction>[
+            DarwinNotificationAction.plain('id_1', 'Action 1'),
+            DarwinNotificationAction.plain(
+              'id_2',
+              'Action 2',
+              options: <DarwinNotificationActionOption>{
+                DarwinNotificationActionOption.destructive,
+              },
+            ),
+            DarwinNotificationAction.plain(
+              'id_3',
+              'Action 3',
+              options: <DarwinNotificationActionOption>{
+                DarwinNotificationActionOption.foreground,
+              },
+            ),
+          ],
+          options: <DarwinNotificationCategoryOption>{
+            DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
+          },
+        ),
+      ],
+    );
+    final initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsDarwin,
+    );
+    await instance._plugin.initialize(
+      initializationSettings,
+      // onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
+      onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+    );
+  }
+
+  static Future<void> _configureLocalTimeZone() async {
+    if (kIsWeb || Platform.isLinux) return;
+
+    tz.initializeTimeZones();
+    final timeZoneName = await FlutterTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(timeZoneName));
+  }
+
+  // Annotation ensures that tree-shaking doesn't remove this method
+  // since it would be invoked on the native side.
+  @pragma('vm:entry-point')
+  static void notificationTapBackground(
+    NotificationResponse notificationResponse,
+  ) {
+    // handle action
+    print(notificationResponse);
+  }
+
+  late final FlutterLocalNotificationsPlugin _plugin;
+
+  Future<void> cancel({required int id}) {
+    return _plugin.cancel(id);
+  }
+
+  Future<void> scheduleNotification({
+    required int id,
+    required Duration in_,
+    required String title,
+  }) async {
+    await _plugin.zonedSchedule(
+      id,
+      title,
+      null,
+      tz.TZDateTime.now(tz.local).add(in_),
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'pomodoro',
+          'Pomodoro',
+          channelDescription: 'Pomodoro channel',
+          visibility: NotificationVisibility.public,
+          importance: Importance.max,
+          priority: Priority.max,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.alarmClock,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+  }
+}
+
+Future<void> onDidReceiveLocalNotification(
+  int id,
+  String? title,
+  String? body,
+  String? payload,
+) =>
+    showDialog(
+      context: navigatorKey.currentContext!,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: Text(title ?? ''),
+        content: Text(body ?? ''),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            child: const Text('Ok'),
+            onPressed: () async {
+              print(payload);
+              Navigator.of(context, rootNavigator: true).pop();
+              // await Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => SecondScreen(payload),
+              //   ),
+              // );
+            },
+          ),
+        ],
+      ),
+    );

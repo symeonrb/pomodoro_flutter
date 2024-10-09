@@ -1,6 +1,7 @@
 // Timer States
 import 'package:async/async.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pomodoro_flutter/service/notification_service.dart';
 import 'package:pomodoro_flutter/utils.dart';
 
 class TimerState {
@@ -60,7 +61,7 @@ class TimerCubit extends Cubit<TimerState> {
   int pauseMinutes;
 
   CancelableOperation<void>? completion;
-  String? completionUid;
+  int? completionUid;
 
   @override
   Future<void> close() {
@@ -89,13 +90,21 @@ class TimerCubit extends Cubit<TimerState> {
     _restartCompletion();
   }
 
-  void _restartCompletion() {
-    _cancelCompletion();
+  void _restartCompletion({bool fromCompletion = false}) {
+    if (!fromCompletion) _cancelCompletion();
     completionUid = generateUid();
     final completionUidAtOperationStart = completionUid;
+
+    final timeLeft = state.timeLeft;
+
+    NotificationService.instance.scheduleNotification(
+      id: completionUidAtOperationStart!,
+      in_: timeLeft,
+      title: state.working ? "Une pause s'impose !" : 'Au boulot !',
+    );
     completion = CancelableOperation.fromFuture(
       Future.delayed(
-        state.timeLeft,
+        timeLeft,
         () {
           if (completionUidAtOperationStart != completionUid) {
             return;
@@ -111,14 +120,15 @@ class TimerCubit extends Cubit<TimerState> {
               working: !state.working,
             ),
           );
-          _restartCompletion();
+          _restartCompletion(fromCompletion: true);
         },
       ),
     );
   }
 
   void _cancelCompletion() {
-    if (completion == null) return;
+    if (completion == null || completionUid == null) return;
+    NotificationService.instance.cancel(id: completionUid!);
     completion!.cancel();
     completion = null;
     completionUid = null;
