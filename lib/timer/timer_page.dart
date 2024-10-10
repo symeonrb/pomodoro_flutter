@@ -118,7 +118,7 @@ class _CounterState extends State<Counter> {
         '${elapsed.inMinutes}:${(elapsed.inSeconds % 60).toString().padLeft(2, '0')}';
 
     if (elapsed <= Duration.zero) {
-      context.read<TimerCubit>().resetFromStorage();
+      context.read<TimerCubit>().checkBackgroundUpdate();
     }
 
     return Container(

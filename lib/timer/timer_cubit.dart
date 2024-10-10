@@ -1,12 +1,43 @@
 // Timer States
+// ignore_for_file: invalid_use_of_visible_for_testing_member
+
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pomodoro_flutter/service/notification_service.dart';
 import 'package:pomodoro_flutter/utils.dart';
 import 'package:workmanager/workmanager.dart';
+
+extension HydratedStorageX on HydratedStorage {
+  static Future<HydratedStorage> getRefreshed({
+    required Directory storageDirectory,
+    HydratedCipher? encryptionCipher,
+  }) async {
+    // Close old storage
+    await HydratedStorage.hive.close();
+
+    // Read current storage
+    Box<dynamic> box;
+    if (storageDirectory == HydratedStorage.webStorageDirectory) {
+      box = await HydratedStorage.hive.openBox(
+        'hydrated_box',
+        encryptionCipher: encryptionCipher,
+      );
+    } else {
+      HydratedStorage.hive.init(storageDirectory.path);
+      box = await HydratedStorage.hive.openBox(
+        'hydrated_box',
+        encryptionCipher: encryptionCipher,
+      );
+    }
+
+    return HydratedStorage(box);
+  }
+}
 
 class TimerState {
   TimerState.start({required this.workMinutes, required this.restMinutes})
@@ -64,7 +95,7 @@ class TimerCubit extends HydratedCubit<TimerState?> {
   TimerCubit._() : super(null);
 
   @override
-  TimerState? fromJson(Map<String, dynamic>? json) => json == null
+  TimerState? fromJson(Map<dynamic, dynamic>? json) => json == null
       ? null
       : TimerState._(
           startedAt: DateTime.tryParse(json['startedAt'] as String? ?? '') ??
@@ -86,19 +117,18 @@ class TimerCubit extends HydratedCubit<TimerState?> {
           'working': state.working,
         };
 
-  Future<void> resetFromStorage() async {
+  Future<void> checkBackgroundUpdate() async {
     try {
-      final storage = await HydratedStorage.build(
+      final storage = await HydratedStorageX.getRefreshed(
         storageDirectory: kIsWeb
             ? HydratedStorage.webStorageDirectory
             : await getApplicationDocumentsDirectory(),
       );
 
-      final stateJson = storage.read(storageToken) as Map<String, dynamic>?;
+      final stateJson = storage.read(storageToken) as Map<dynamic, dynamic>?;
       final timer = fromJson(stateJson);
-      if (timer != null && timer.duration > Duration.zero) {
-        // emit(timer);
-        print(timer);
+      if (timer != null && timer.working != state?.working) {
+        emit(timer);
       }
     } catch (error, stackTrace) {
       onError(error, stackTrace);
@@ -106,12 +136,6 @@ class TimerCubit extends HydratedCubit<TimerState?> {
   }
 
   static final instance = TimerCubit._();
-
-  @override
-  void emit(TimerState? state) {
-    print('TimerState(working: ${state?.working})');
-    super.emit(state);
-  }
 
   @override
   Future<void> clear() async {
@@ -122,8 +146,8 @@ class TimerCubit extends HydratedCubit<TimerState?> {
 
   void pause() {
     if (state == null) return;
-    _cancelTimer();
     emit(state!.paused());
+    _cancelTimer();
   }
 
   void resume() {

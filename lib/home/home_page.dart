@@ -15,6 +15,7 @@ class HomePage extends StatelessWidget {
         context.pushPage(const TimerPage());
       });
     }
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       body: Center(
