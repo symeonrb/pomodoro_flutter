@@ -37,7 +37,7 @@ class PomodoroApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RepositoryProvider(
-      create: (context) => const AuthenticationService(),
+      create: (context) => AuthenticationService(),
       child: MultiBlocProvider(
         providers: [
           BlocProvider.value(value: TimerCubit.instance),
@@ -49,6 +49,7 @@ class PomodoroApp extends StatelessWidget {
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
             useMaterial3: true,
+            cardTheme: const CardTheme(margin: EdgeInsets.zero),
           ),
           home: const HomePage(),
         ),

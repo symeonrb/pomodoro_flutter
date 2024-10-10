@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAYtVpOJmXS_2z3V7R75wH_P5hc2QV3dTQ',
-    appId: '1:421858371890:android:6abe55a09335b7d5a08f2b',
+    appId: '1:421858371890:android:92c04ae364fd8850a08f2b',
     messagingSenderId: '421858371890',
     projectId: 'pomodoro-5c1ff',
     storageBucket: 'pomodoro-5c1ff.appspot.com',
@@ -59,13 +59,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBJJDccNhPbhIry-5fhJ94uKk6XIHFlRqw',
-    appId: '1:421858371890:ios:148e22c3309f9fe3a08f2b',
+    appId: '1:421858371890:ios:a5d3d6a3242dedd0a08f2b',
     messagingSenderId: '421858371890',
     projectId: 'pomodoro-5c1ff',
     storageBucket: 'pomodoro-5c1ff.appspot.com',
     androidClientId: '421858371890-e4ut6qjpgiqbglhamlfq5kpfvjgj7lnv.apps.googleusercontent.com',
-    iosClientId: '421858371890-s882koao4lt8dfjh5lr164e1bb8kd9na.apps.googleusercontent.com',
-    iosBundleId: 'com.example.pomodoroFlutter',
+    iosClientId: '421858371890-6vklaknsf4qe3m4qpjvcg1l1eo12odjl.apps.googleusercontent.com',
+    iosBundleId: 'com.pomodoro.flutter',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -74,9 +74,11 @@ class DefaultFirebaseOptions {
     messagingSenderId: '421858371890',
     projectId: 'pomodoro-5c1ff',
     storageBucket: 'pomodoro-5c1ff.appspot.com',
-    androidClientId: '421858371890-e4ut6qjpgiqbglhamlfq5kpfvjgj7lnv.apps.googleusercontent.com',
-    iosClientId: '421858371890-s882koao4lt8dfjh5lr164e1bb8kd9na.apps.googleusercontent.com',
-    iosBundleId: 'com.example.pomodoroFlutter',
+    androidClientId:
+        '421858371890-e4ut6qjpgiqbglhamlfq5kpfvjgj7lnv.apps.googleusercontent.com',
+    iosClientId:
+        '421858371890-s882koao4lt8dfjh5lr164e1bb8kd9na.apps.googleusercontent.com',
+    iosBundleId: 'com.pomodoro.flutter',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

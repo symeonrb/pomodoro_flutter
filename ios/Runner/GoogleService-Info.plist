@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>421858371890-s882koao4lt8dfjh5lr164e1bb8kd9na.apps.googleusercontent.com</string>
+	<string>421858371890-6vklaknsf4qe3m4qpjvcg1l1eo12odjl.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.421858371890-s882koao4lt8dfjh5lr164e1bb8kd9na</string>
+	<string>com.googleusercontent.apps.421858371890-6vklaknsf4qe3m4qpjvcg1l1eo12odjl</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>421858371890-e4ut6qjpgiqbglhamlfq5kpfvjgj7lnv.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.pomodoroFlutter</string>
+	<string>com.pomodoro.flutter</string>
 	<key>PROJECT_ID</key>
 	<string>pomodoro-5c1ff</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:421858371890:ios:148e22c3309f9fe3a08f2b</string>
+	<string>1:421858371890:ios:a5d3d6a3242dedd0a08f2b</string>
 </dict>
 </plist>

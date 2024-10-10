@@ -7,42 +7,6 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:421858371890:android:b36c9d0ddda5b043a08f2b",
-        "android_client_info": {
-          "package_name": "com.example.flutterPomodoro"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "421858371890-klbs1rofpjr3ff0iscejev0i3r5isedm.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAYtVpOJmXS_2z3V7R75wH_P5hc2QV3dTQ"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "421858371890-klbs1rofpjr3ff0iscejev0i3r5isedm.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "421858371890-s882koao4lt8dfjh5lr164e1bb8kd9na.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.pomodoroFlutter"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:421858371890:android:6abe55a09335b7d5a08f2b",
         "android_client_info": {
           "package_name": "com.maelsymeon.pomodoro"
@@ -87,45 +51,9 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:421858371890:android:f271b6bf71f1c0d7a08f2b",
+        "mobilesdk_app_id": "1:421858371890:android:92c04ae364fd8850a08f2b",
         "android_client_info": {
-          "package_name": "com.maelsymeon.pomodoroFlut"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "421858371890-klbs1rofpjr3ff0iscejev0i3r5isedm.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAYtVpOJmXS_2z3V7R75wH_P5hc2QV3dTQ"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "421858371890-klbs1rofpjr3ff0iscejev0i3r5isedm.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "421858371890-s882koao4lt8dfjh5lr164e1bb8kd9na.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.pomodoroFlutter"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:421858371890:android:6d7f96e071ea99afa08f2b",
-        "android_client_info": {
-          "package_name": "com.maelsymeon.pomodoroFlutter"
+          "package_name": "com.pomodoro.flutter"
         }
       },
       "oauth_client": [

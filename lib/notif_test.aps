@@ -13,5 +13,5 @@
     "type": "waiting_room"
   },
   "click_action": "FLUTTER_NOTIFICATION_CLICK",
-  "Simulator Target Bundle": "com.example.pomodoroFlutter"
+  "Simulator Target Bundle": "com.pomodoro.flutter"
 }

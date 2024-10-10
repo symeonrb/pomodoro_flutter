@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.maelsymeon.pomodoroFlutter"
+    namespace = "com.pomodoro.flutter"
     compileSdk = 34
     ndkVersion = flutter.ndkVersion
 
@@ -22,7 +22,7 @@ android {
 
     defaultConfig {
         multiDexEnabled true
-        applicationId = "com.maelsymeon.pomodoroFlutter"
+        applicationId = "com.pomodoro.flutter"
         minSdk = 23
         targetSdk = 34
         versionCode = flutter.versionCode
