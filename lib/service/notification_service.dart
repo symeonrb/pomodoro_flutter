@@ -89,34 +89,6 @@ class NotificationService {
     return _plugin.cancel(id);
   }
 
-  Future<void> scheduleNotification({
-    required int id,
-    required Duration in_,
-    required String title,
-  }) async {
-    await _plugin.zonedSchedule(
-      id,
-      title,
-      null,
-      tz.TZDateTime.now(tz.local)
-          .add(in_.inSeconds < 1 ? const Duration(seconds: 1) : in_),
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'pomodoro',
-          'Pomodoro',
-          channelDescription: 'Pomodoro channel',
-          visibility: NotificationVisibility.public,
-          importance: Importance.max,
-          priority: Priority.max,
-          audioAttributesUsage: AudioAttributesUsage.alarm,
-        ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.alarmClock,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-    );
-  }
-
   Future<void> sendNotification({
     required int id,
     required String title,
@@ -134,6 +106,10 @@ class NotificationService {
           importance: Importance.max,
           priority: Priority.max,
           audioAttributesUsage: AudioAttributesUsage.alarm,
+          sound: RawResourceAndroidNotificationSound('pomodoro'),
+        ),
+        iOS: DarwinNotificationDetails(
+          sound: 'pomodoro.aiff',
         ),
       ),
     );
