@@ -13,14 +13,16 @@ class NotificationService {
   NotificationService._();
   static final instance = NotificationService._();
 
-  static Future<void> init() async {
+  static Future<void> initialize({bool fromWorkmanager = false}) async {
     await _configureLocalTimeZone();
 
     instance._plugin = FlutterLocalNotificationsPlugin();
-    await instance._plugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestNotificationsPermission();
+    if (!fromWorkmanager) {
+      await instance._plugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestNotificationsPermission();
+    }
 
     const initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_notification');
@@ -106,11 +108,34 @@ class NotificationService {
           visibility: NotificationVisibility.public,
           importance: Importance.max,
           priority: Priority.max,
+          audioAttributesUsage: AudioAttributesUsage.alarm,
         ),
       ),
       androidScheduleMode: AndroidScheduleMode.alarmClock,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
+    );
+  }
+
+  Future<void> sendNotification({
+    required int id,
+    required String title,
+  }) async {
+    await _plugin.show(
+      id,
+      title,
+      null,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'pomodoro',
+          'Pomodoro',
+          channelDescription: 'Pomodoro channel',
+          visibility: NotificationVisibility.public,
+          importance: Importance.max,
+          priority: Priority.max,
+          audioAttributesUsage: AudioAttributesUsage.alarm,
+        ),
+      ),
     );
   }
 }

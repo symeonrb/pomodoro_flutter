@@ -1,11 +1,15 @@
 // Timer States
-import 'package:async/async.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:developer';
+
+import 'package:flutter/foundation.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pomodoro_flutter/service/notification_service.dart';
 import 'package:pomodoro_flutter/utils.dart';
+import 'package:workmanager/workmanager.dart';
 
 class TimerState {
-  TimerState.start({required this.duration})
+  TimerState.start({required this.workMinutes, required this.restMinutes})
       : startedAt = DateTime.now(),
         pausedAt = null,
         working = true;
@@ -13,19 +17,22 @@ class TimerState {
   TimerState._({
     required this.startedAt,
     required this.pausedAt,
-    required this.duration,
+    required this.workMinutes,
+    required this.restMinutes,
     required this.working,
   });
 
   final DateTime startedAt;
   final DateTime? pausedAt;
-  final Duration duration;
+  final int workMinutes;
+  final int restMinutes;
   final bool working;
 
   TimerState paused() => TimerState._(
         startedAt: startedAt,
         pausedAt: DateTime.now(),
-        duration: duration,
+        workMinutes: workMinutes,
+        restMinutes: restMinutes,
         working: working,
       );
 
@@ -34,7 +41,8 @@ class TimerState {
       : TimerState._(
           startedAt: startedAt.add(DateTime.now().difference(pausedAt!)),
           pausedAt: null,
-          duration: duration,
+          workMinutes: workMinutes,
+          restMinutes: restMinutes,
           working: working,
         );
 
@@ -47,102 +55,157 @@ class TimerState {
     return left;
   }
 
+  Duration get duration =>
+      Duration(minutes: working ? workMinutes : restMinutes);
   bool get isRunning => pausedAt == null;
 }
 
-class TimerCubit extends Cubit<TimerState> {
-  TimerCubit(
-    super.initialState, {
-    required this.workMinutes,
-    required this.pauseMinutes,
-  });
-
-  int workMinutes;
-  int pauseMinutes;
-
-  CancelableOperation<void>? completion;
-  int? completionUid;
+class TimerCubit extends HydratedCubit<TimerState?> {
+  TimerCubit._() : super(null);
 
   @override
-  Future<void> close() {
-    _cancelCompletion();
-    return super.close();
+  TimerState? fromJson(Map<String, dynamic>? json) => json == null
+      ? null
+      : TimerState._(
+          startedAt: DateTime.tryParse(json['startedAt'] as String? ?? '') ??
+              DateTime.now(),
+          pausedAt: DateTime.tryParse(json['pausedAt'] as String? ?? ''),
+          workMinutes: json['workMinutes'] as int? ?? 0,
+          restMinutes: json['restMinutes'] as int? ?? 0,
+          working: json['working'] as bool? ?? true,
+        );
+
+  @override
+  Map<String, dynamic>? toJson(TimerState? state) => state == null
+      ? null
+      : {
+          'startedAt': state.startedAt.toIso8601String(),
+          'pausedAt': state.pausedAt?.toIso8601String(),
+          'workMinutes': state.workMinutes,
+          'restMinutes': state.restMinutes,
+          'working': state.working,
+        };
+
+  Future<void> resetFromStorage() async {
+    try {
+      final storage = await HydratedStorage.build(
+        storageDirectory: kIsWeb
+            ? HydratedStorage.webStorageDirectory
+            : await getApplicationDocumentsDirectory(),
+      );
+
+      final stateJson = storage.read(storageToken) as Map<String, dynamic>?;
+      final timer = fromJson(stateJson);
+      if (timer != null && timer.duration > Duration.zero) {
+        // emit(timer);
+        print(timer);
+      }
+    } catch (error, stackTrace) {
+      onError(error, stackTrace);
+    }
   }
 
-  void cancel() {
-    _cancelCompletion();
+  static final instance = TimerCubit._();
+
+  @override
+  void emit(TimerState? state) {
+    print('TimerState(working: ${state?.working})');
+    super.emit(state);
+  }
+
+  @override
+  Future<void> clear() async {
+    await _cancelTimer();
+    emit(null);
+    await super.clear();
   }
 
   void pause() {
-    _cancelCompletion();
-    emit(state.paused());
+    if (state == null) return;
+    _cancelTimer();
+    emit(state!.paused());
   }
 
   void resume() {
-    emit(state.resumed());
-    _restartCompletion();
+    if (state == null) return;
+    emit(state!.resumed());
+    _restartTimer();
   }
 
-  void start({required int workMinutes, required int pauseMinutes}) {
-    this.workMinutes = workMinutes;
-    this.pauseMinutes = pauseMinutes;
-    emit(TimerState.start(duration: Duration(minutes: workMinutes)));
-    _restartCompletion();
+  void start({required int workMinutes, required int restMinutes}) {
+    emit(TimerState.start(workMinutes: workMinutes, restMinutes: restMinutes));
+    _restartTimer();
   }
 
-  void _restartCompletion({bool fromCompletion = false}) {
-    if (!fromCompletion) _cancelCompletion();
-    completionUid = generateUid();
-    final completionUidAtOperationStart = completionUid;
+  Future<void> _restartTimer({bool fromCompletion = false}) async {
+    if (!fromCompletion) await _cancelTimer();
 
-    final timeLeft = state.timeLeft;
+    if (state == null) return;
 
-    NotificationService.instance.scheduleNotification(
-      id: completionUidAtOperationStart!,
-      in_: timeLeft,
-      title: state.working ? "Une pause s'impose !" : 'Au boulot !',
-    );
-    completion = CancelableOperation.fromFuture(
-      Future.delayed(
-        timeLeft,
-        () {
-          if (completionUidAtOperationStart != completionUid) {
-            return;
-          }
-
-          emit(
-            TimerState._(
-              startedAt: DateTime.now(),
-              pausedAt: null,
-              duration: Duration(
-                minutes: state.working ? pauseMinutes : workMinutes,
-              ),
-              working: !state.working,
-            ),
-          );
-          _restartCompletion(fromCompletion: true);
-        },
-      ),
+    await Workmanager().registerOneOffTask(
+      state!.working ? 'workTimer' : 'restTimer',
+      'timerEnd',
+      initialDelay: state!.timeLeft,
     );
   }
 
-  void _cancelCompletion() {
-    if (completion == null || completionUid == null) return;
-    NotificationService.instance.cancel(id: completionUid!);
-    completion!.cancel();
-    completion = null;
-    completionUid = null;
+  Future<void> _cancelTimer() async {
+    await Workmanager().cancelByUniqueName('workTimer');
+    await Workmanager().cancelByUniqueName('restTimer');
   }
 
   void cheat({required Duration dontWait}) {
+    if (state == null) return;
     emit(
       TimerState._(
-        startedAt: state.startedAt.add(dontWait),
-        pausedAt: state.pausedAt,
-        duration: state.duration,
-        working: state.working,
+        startedAt: state!.startedAt.add(dontWait),
+        pausedAt: state!.pausedAt,
+        workMinutes: state!.workMinutes,
+        restMinutes: state!.restMinutes,
+        working: state!.working,
       ),
     );
-    _restartCompletion();
+    _restartTimer();
+  }
+
+  Future<void> onTimerEnd() async {
+    if (state == null) return;
+    final wasWorking = state!.working;
+
+    log('onTimerEnd');
+    try {
+      await NotificationService.instance.sendNotification(
+        id: generateUid(),
+        title: wasWorking ? "Une pause s'impose !" : 'Au boulot !',
+      );
+      emit(
+        TimerState._(
+          startedAt: DateTime.now(),
+          pausedAt: null,
+          workMinutes: state!.workMinutes,
+          restMinutes: state!.restMinutes,
+          working: !wasWorking,
+        ),
+      );
+
+      try {
+        final stateJson = toJson(state);
+        if (stateJson != null) {
+          await HydratedBloc.storage
+              .write(storageToken, stateJson)
+              .then((_) {}, onError: print);
+        }
+      } catch (error, stackTrace) {
+        onError(error, stackTrace);
+        if (error is StorageNotFound) rethrow;
+      }
+
+      await _restartTimer(fromCompletion: true);
+      await Workmanager().cancelByUniqueName(
+        wasWorking ? 'workTimer' : 'restTimer',
+      );
+    } catch (e) {
+      log(e.toString());
+    }
   }
 }
