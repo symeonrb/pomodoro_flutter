@@ -3,6 +3,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pomodoro_flutter/timer/timer_cubit.dart';
 import 'package:pomodoro_flutter/timer/timer_page.dart';
+import 'package:pomodoro_flutter/timer/timer_state.dart';
 import 'package:pomodoro_flutter/utils.dart';
 
 class HomePage extends StatelessWidget {

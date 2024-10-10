@@ -9,87 +9,9 @@ import 'package:hive/hive.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pomodoro_flutter/service/notification_service.dart';
+import 'package:pomodoro_flutter/timer/timer_state.dart';
 import 'package:pomodoro_flutter/utils.dart';
 import 'package:workmanager/workmanager.dart';
-
-extension HydratedStorageX on HydratedStorage {
-  static Future<HydratedStorage> getRefreshed({
-    required Directory storageDirectory,
-    HydratedCipher? encryptionCipher,
-  }) async {
-    // Close old storage
-    await HydratedStorage.hive.close();
-
-    // Read current storage
-    Box<dynamic> box;
-    if (storageDirectory == HydratedStorage.webStorageDirectory) {
-      box = await HydratedStorage.hive.openBox(
-        'hydrated_box',
-        encryptionCipher: encryptionCipher,
-      );
-    } else {
-      HydratedStorage.hive.init(storageDirectory.path);
-      box = await HydratedStorage.hive.openBox(
-        'hydrated_box',
-        encryptionCipher: encryptionCipher,
-      );
-    }
-
-    return HydratedStorage(box);
-  }
-}
-
-class TimerState {
-  TimerState.start({required this.workMinutes, required this.restMinutes})
-      : startedAt = DateTime.now(),
-        pausedAt = null,
-        working = true;
-
-  TimerState._({
-    required this.startedAt,
-    required this.pausedAt,
-    required this.workMinutes,
-    required this.restMinutes,
-    required this.working,
-  });
-
-  final DateTime startedAt;
-  final DateTime? pausedAt;
-  final int workMinutes;
-  final int restMinutes;
-  final bool working;
-
-  TimerState paused() => TimerState._(
-        startedAt: startedAt,
-        pausedAt: DateTime.now(),
-        workMinutes: workMinutes,
-        restMinutes: restMinutes,
-        working: working,
-      );
-
-  TimerState resumed() => pausedAt == null
-      ? this
-      : TimerState._(
-          startedAt: startedAt.add(DateTime.now().difference(pausedAt!)),
-          pausedAt: null,
-          workMinutes: workMinutes,
-          restMinutes: restMinutes,
-          working: working,
-        );
-
-  Duration get timeElapsed => pausedAt == null
-      ? DateTime.now().difference(startedAt)
-      : pausedAt!.difference(startedAt);
-  Duration get timeLeft {
-    final left = duration - timeElapsed;
-    if (left.isNegative) return Duration.zero;
-    return left;
-  }
-
-  Duration get duration =>
-      Duration(minutes: working ? workMinutes : restMinutes);
-  bool get isRunning => pausedAt == null;
-}
 
 class TimerCubit extends HydratedCubit<TimerState?> {
   TimerCubit._() : super(null);
@@ -97,7 +19,7 @@ class TimerCubit extends HydratedCubit<TimerState?> {
   @override
   TimerState? fromJson(Map<dynamic, dynamic>? json) => json == null
       ? null
-      : TimerState._(
+      : TimerState(
           startedAt: DateTime.tryParse(json['startedAt'] as String? ?? '') ??
               DateTime.now(),
           pausedAt: DateTime.tryParse(json['pausedAt'] as String? ?? ''),
@@ -117,25 +39,24 @@ class TimerCubit extends HydratedCubit<TimerState?> {
           'working': state.working,
         };
 
-  Future<void> checkBackgroundUpdate() async {
-    try {
-      final storage = await HydratedStorageX.getRefreshed(
-        storageDirectory: kIsWeb
-            ? HydratedStorage.webStorageDirectory
-            : await getApplicationDocumentsDirectory(),
-      );
+  static final instance = TimerCubit._();
 
-      final stateJson = storage.read(storageToken) as Map<dynamic, dynamic>?;
-      final timer = fromJson(stateJson);
-      if (timer != null && timer.working != state?.working) {
-        emit(timer);
-      }
-    } catch (error, stackTrace) {
-      onError(error, stackTrace);
-    }
+  Future<void> _restartTimer({bool fromCompletion = false}) async {
+    if (!fromCompletion) await _cancelTimer();
+
+    if (state == null) return;
+
+    await Workmanager().registerOneOffTask(
+      state!.working ? 'workTimer' : 'restTimer',
+      'timerEnd',
+      initialDelay: state!.timeLeft,
+    );
   }
 
-  static final instance = TimerCubit._();
+  Future<void> _cancelTimer() async {
+    await Workmanager().cancelByUniqueName('workTimer');
+    await Workmanager().cancelByUniqueName('restTimer');
+  }
 
   @override
   Future<void> clear() async {
@@ -161,27 +82,28 @@ class TimerCubit extends HydratedCubit<TimerState?> {
     _restartTimer();
   }
 
-  Future<void> _restartTimer({bool fromCompletion = false}) async {
-    if (!fromCompletion) await _cancelTimer();
+  Future<void> checkBackgroundUpdate() async {
+    try {
+      final storage = await HydratedStorageX.getRefreshed(
+        storageDirectory: kIsWeb
+            ? HydratedStorage.webStorageDirectory
+            : await getApplicationDocumentsDirectory(),
+      );
 
-    if (state == null) return;
-
-    await Workmanager().registerOneOffTask(
-      state!.working ? 'workTimer' : 'restTimer',
-      'timerEnd',
-      initialDelay: state!.timeLeft,
-    );
-  }
-
-  Future<void> _cancelTimer() async {
-    await Workmanager().cancelByUniqueName('workTimer');
-    await Workmanager().cancelByUniqueName('restTimer');
+      final stateJson = storage.read(storageToken) as Map<dynamic, dynamic>?;
+      final timer = fromJson(stateJson);
+      if (timer != null && timer.working != state?.working) {
+        emit(timer);
+      }
+    } catch (error, stackTrace) {
+      onError(error, stackTrace);
+    }
   }
 
   void cheat({required Duration dontWait}) {
     if (state == null) return;
     emit(
-      TimerState._(
+      TimerState(
         startedAt: state!.startedAt.add(dontWait),
         pausedAt: state!.pausedAt,
         workMinutes: state!.workMinutes,
@@ -192,18 +114,18 @@ class TimerCubit extends HydratedCubit<TimerState?> {
     _restartTimer();
   }
 
+  /// Called by background
   Future<void> onTimerEnd() async {
     if (state == null) return;
     final wasWorking = state!.working;
 
-    log('onTimerEnd');
     try {
       await NotificationService.instance.sendNotification(
         id: generateUid(),
         title: wasWorking ? "Une pause s'impose !" : 'Au boulot !',
       );
       emit(
-        TimerState._(
+        TimerState(
           startedAt: DateTime.now(),
           pausedAt: null,
           workMinutes: state!.workMinutes,
@@ -219,8 +141,8 @@ class TimerCubit extends HydratedCubit<TimerState?> {
               .write(storageToken, stateJson)
               .then((_) {}, onError: print);
         }
-      } catch (error, stackTrace) {
-        onError(error, stackTrace);
+      } catch (error) {
+        log(error.toString());
         if (error is StorageNotFound) rethrow;
       }
 
@@ -231,5 +153,32 @@ class TimerCubit extends HydratedCubit<TimerState?> {
     } catch (e) {
       log(e.toString());
     }
+  }
+}
+
+extension HydratedStorageX on HydratedStorage {
+  static Future<HydratedStorage> getRefreshed({
+    required Directory storageDirectory,
+    HydratedCipher? encryptionCipher,
+  }) async {
+    // Close old storage
+    await HydratedStorage.hive.close();
+
+    // Read current storage
+    Box<dynamic> box;
+    if (storageDirectory == HydratedStorage.webStorageDirectory) {
+      box = await HydratedStorage.hive.openBox(
+        'hydrated_box',
+        encryptionCipher: encryptionCipher,
+      );
+    } else {
+      HydratedStorage.hive.init(storageDirectory.path);
+      box = await HydratedStorage.hive.openBox(
+        'hydrated_box',
+        encryptionCipher: encryptionCipher,
+      );
+    }
+
+    return HydratedStorage(box);
   }
 }

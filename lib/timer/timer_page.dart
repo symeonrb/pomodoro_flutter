@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pomodoro_flutter/timer/timer_cubit.dart';
+import 'package:pomodoro_flutter/timer/timer_state.dart';
 
 class TimerPage extends StatelessWidget {
   const TimerPage({super.key});
