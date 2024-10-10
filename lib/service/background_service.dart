@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pomodoro_flutter/service/notification_service.dart';
-import 'package:pomodoro_flutter/timer/timer_cubit.dart';
+import 'package:pomodoro_flutter/cubit/timer_cubit.dart';
 import 'package:workmanager/workmanager.dart';
 
 class BackgroundService {

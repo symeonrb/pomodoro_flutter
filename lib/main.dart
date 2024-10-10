@@ -1,12 +1,16 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pomodoro_flutter/home/home_page.dart';
+import 'package:pomodoro_flutter/cubit/timer_cubit.dart';
+import 'package:pomodoro_flutter/cubit/user_cubit.dart';
+import 'package:pomodoro_flutter/firebase_options.dart';
+import 'package:pomodoro_flutter/page/home_page.dart';
+import 'package:pomodoro_flutter/service/authentication_service.dart';
 import 'package:pomodoro_flutter/service/background_service.dart';
 import 'package:pomodoro_flutter/service/notification_service.dart';
-import 'package:pomodoro_flutter/timer/timer_cubit.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -19,6 +23,8 @@ Future<void> main() async {
         : await getApplicationDocumentsDirectory(),
   );
 
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   await BackgroundService.initialize();
   await NotificationService.initialize();
 
@@ -30,16 +36,22 @@ class PomodoroApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: TimerCubit.instance,
-      child: MaterialApp(
-        navigatorKey: navigatorKey,
-        title: 'Pomodoro',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
-          useMaterial3: true,
+    return RepositoryProvider(
+      create: (context) => const AuthenticationService(),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: TimerCubit.instance),
+          BlocProvider(create: (context) => UserCubit()),
+        ],
+        child: MaterialApp(
+          navigatorKey: navigatorKey,
+          title: 'Pomodoro',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
+            useMaterial3: true,
+          ),
+          home: const HomePage(),
         ),
-        home: const HomePage(),
       ),
     );
   }

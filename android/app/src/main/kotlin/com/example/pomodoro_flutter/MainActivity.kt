@@ -1,4 +1,4 @@
-package com.example.pomodoro_flutter
+package com.example.pomodoroFlutter
 
 import io.flutter.embedding.android.FlutterActivity
 
