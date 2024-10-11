@@ -87,12 +87,26 @@ class UserCard extends StatelessWidget {
 
     if (user == null) {
       return Card(
+        clipBehavior: Clip.hardEdge,
         color: Theme.of(context).colorScheme.surfaceContainerLowest,
-        child: FilledButton(
-          onPressed: () {
-            context.read<AuthenticationService>().signInWithGoogle();
-          },
-          child: const Text('Se connecter avec Google'),
+        child: InkWell(
+          onTap: () => context.read<AuthenticationService>().signInWithGoogle(),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Image.asset(
+                  'assets/google.png',
+                  width: 40,
+                ),
+                const SizedBox(width: 16),
+                Text(
+                  'Se connecter avec Google',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ],
+            ),
+          ),
         ),
       );
     }
