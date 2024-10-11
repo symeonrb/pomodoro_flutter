@@ -36,6 +36,8 @@ class PomodoroApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.fromSeed(seedColor: Colors.pinkAccent);
+
     return RepositoryProvider(
       create: (context) => AuthenticationService(),
       child: MultiBlocProvider(
@@ -47,9 +49,12 @@ class PomodoroApp extends StatelessWidget {
           navigatorKey: navigatorKey,
           title: 'Pomodoro',
           theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
+            colorScheme: colorScheme,
             useMaterial3: true,
             cardTheme: const CardTheme(margin: EdgeInsets.zero),
+            scaffoldBackgroundColor: colorScheme.inversePrimary,
+            appBarTheme:
+                AppBarTheme(backgroundColor: colorScheme.inversePrimary),
           ),
           home: const HomePage(),
         ),

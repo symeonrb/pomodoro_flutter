@@ -3,10 +3,14 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pomodoro_flutter/cubit/timer_cubit.dart';
 import 'package:pomodoro_flutter/cubit/user_cubit.dart';
+import 'package:pomodoro_flutter/main.dart';
+import 'package:pomodoro_flutter/model/rythm.dart';
 import 'package:pomodoro_flutter/model/timer_state.dart';
+import 'package:pomodoro_flutter/page/select_rythm_page.dart';
 import 'package:pomodoro_flutter/page/timer_page.dart';
 import 'package:pomodoro_flutter/service/authentication_service.dart';
 import 'package:pomodoro_flutter/utils.dart';
+import 'package:pomodoro_flutter/widget/big_button.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -20,7 +24,6 @@ class HomePage extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -40,89 +43,34 @@ class HomePage extends StatelessWidget {
           ),
           const SizedBox(height: 60),
           BigButton(
-            onPressed: () {
-              context
-                  .read<TimerCubit>()
-                  .start(workMinutes: 45, restMinutes: 15);
+            onPressed: () async {
+              final rythm =
+                  await context.pushPage<Rythm>(const SelectRythmPage());
 
-              context.pushPage(const TimerPage());
+              if (rythm == null) return;
+
+              TimerCubit.instance.start(
+                workMinutes: rythm.workMinutes,
+                restMinutes: rythm.restMinutes,
+              );
+
+              await navigatorKey.currentContext?.pushPage(const TimerPage());
             },
-            child: const Text('Commencer à travailler'),
+            child: Column(
+              children: [
+                // Icon(Icons.mindf),
+                Image.network(
+                  'https://cdn-icons-png.flaticon.com/512/1672/1672248.png',
+                  width: 64,
+                ),
+                const SizedBox(height: 10),
+                const Text('Commencer à travailler'),
+              ],
+            ),
           ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: BigButton(
-                  onPressed: () {
-                    context
-                        .read<TimerCubit>()
-                        .start(workMinutes: 45, restMinutes: 15);
-
-                    context.pushPage(const TimerPage());
-                  },
-                  child: const Text('45 / 15'),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: BigButton(
-                  onPressed: () {
-                    context
-                        .read<TimerCubit>()
-                        .start(workMinutes: 25, restMinutes: 5);
-
-                    context.pushPage(const TimerPage());
-                  },
-                  child: const Text('25 / 5'),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: BigButton(
-                  onPressed: () {
-                    context
-                        .read<TimerCubit>()
-                        .start(workMinutes: 2, restMinutes: 1);
-
-                    context.pushPage(const TimerPage());
-                  },
-                  child: const Text('2 / 1'),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 40),
           const HistoryCard(),
         ],
-      ),
-    );
-  }
-}
-
-class BigButton extends StatelessWidget {
-  const BigButton({required this.onPressed, required this.child, super.key});
-
-  final VoidCallback onPressed;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card.filled(
-      color: Theme.of(context).colorScheme.primary,
-      clipBehavior: Clip.hardEdge,
-      child: InkWell(
-        onTap: onPressed,
-        child: DefaultTextStyle(
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge!
-              .copyWith(color: Theme.of(context).colorScheme.onPrimary),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Center(child: child),
-          ),
-        ),
       ),
     );
   }
