@@ -25,6 +25,8 @@ Future<void> callbackDispatcher() async {
     if (task == 'notifyTimeToRest') {
       final frequencyMinutes = inputData?['frequencyMinutes'] as int? ?? 1;
 
+      await NotificationService.instance.cancelAll();
+
       unawaited(
         NotificationService.instance.sendNotification(
           id: generateUidInt(),
@@ -40,6 +42,8 @@ Future<void> callbackDispatcher() async {
       );
     } else if (task == 'notifyTimeToWork') {
       final frequencyMinutes = inputData?['frequencyMinutes'] as int? ?? 1;
+
+      await NotificationService.instance.cancelAll();
 
       unawaited(
         NotificationService.instance.sendNotification(
