@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pomodoro_flutter/cubit/timer_cubit.dart';
-import 'package:pomodoro_flutter/cubit/user_cubit.dart';
 import 'package:pomodoro_flutter/main.dart';
 import 'package:pomodoro_flutter/model/rythm.dart';
 import 'package:pomodoro_flutter/model/timer_state.dart';
 import 'package:pomodoro_flutter/page/select_rythm_page.dart';
 import 'package:pomodoro_flutter/page/timer_page.dart';
-import 'package:pomodoro_flutter/service/authentication_service.dart';
 import 'package:pomodoro_flutter/utils.dart';
 import 'package:pomodoro_flutter/widget/big_button.dart';
+import 'package:pomodoro_flutter/widget/history_section.dart';
+import 'package:pomodoro_flutter/widget/user_section.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -28,7 +28,7 @@ class HomePage extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           const SizedBox(height: 100),
-          const UserCard(),
+          const UserSection(),
           BlocSelector<TimerCubit, TimerState?, bool>(
             selector: (timer) => timer == null,
             builder: (context, noTimer) {
@@ -71,110 +71,8 @@ class HomePage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 40),
-          const HistoryCard(),
+          const HistorySection(),
         ],
-      ),
-    );
-  }
-}
-
-class UserCard extends StatelessWidget {
-  const UserCard({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final user = context.watch<UserCubit>().state;
-
-    if (user == null) {
-      return Card(
-        clipBehavior: Clip.hardEdge,
-        color: Theme.of(context).colorScheme.surfaceContainerLowest,
-        child: InkWell(
-          onTap: () => context.read<AuthenticationService>().signInWithGoogle(),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Image.asset(
-                  'assets/google.png',
-                  width: 40,
-                ),
-                const SizedBox(width: 16),
-                Text(
-                  'Se connecter avec Google',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Bonjour',
-                  ),
-                  Text(
-                    user.displayName ?? '',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ],
-              ),
-            ),
-            if (user.photoURL != null) ...[
-              const SizedBox(width: 20),
-              CircleAvatar(
-                foregroundImage: NetworkImage(user.photoURL!),
-                radius: 30,
-              ),
-            ],
-          ],
-        ),
-        const SizedBox(height: 20),
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton(
-            onPressed: context.read<AuthenticationService>().signOut,
-            child: const Text('Déconnexion'),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class HistoryCard extends StatelessWidget {
-  const HistoryCard({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final user = context.watch<UserCubit>().state;
-    if (user == null) return const SizedBox.shrink();
-
-    return Card(
-      color: Theme.of(context).colorScheme.surfaceContainerLowest,
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Historique',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 60),
-          ],
-        ),
       ),
     );
   }
