@@ -6,89 +6,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pomodoro_flutter/cubit/timer_cubit.dart';
 import 'package:pomodoro_flutter/model/timer_state.dart';
 
-class TimerPage extends StatelessWidget {
+class TimerPage extends StatefulWidget {
   const TimerPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocSelector<TimerCubit, TimerState?, bool>(
-      selector: (timer) => timer?.working ?? false,
-      builder: (context, working) {
-        final colorScheme = ColorScheme.fromSeed(
-          seedColor: working ? Colors.blue : Colors.orangeAccent,
-        );
-
-        return Theme(
-          data: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: working ? Colors.blue : Colors.orangeAccent,
-            ),
-            useMaterial3: true,
-          ),
-          child: Scaffold(
-            appBar: AppBar(
-              backgroundColor: colorScheme.inversePrimary,
-              leading: IconButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  context.read<TimerCubit>().clear();
-                },
-                icon: const Icon(Icons.close),
-              ),
-            ),
-            backgroundColor: colorScheme.inversePrimary,
-            body: ListView(
-              children: [
-                const Center(child: Counter()),
-                const SizedBox(height: 60),
-                BlocSelector<TimerCubit, TimerState?, bool>(
-                  selector: (timer) => timer?.working ?? true,
-                  builder: (context, working) {
-                    return Text(
-                      working ? 'Au boulot !' : "Une pause s'impose",
-                      style: Theme.of(context).textTheme.displayMedium,
-                      textAlign: TextAlign.center,
-                    );
-                  },
-                ),
-              ],
-            ),
-            bottomNavigationBar: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(
-                    onPressed: () => context
-                        .read<TimerCubit>()
-                        .cheat(dontWait: const Duration(minutes: -5)),
-                    child: const Text('-5 min'),
-                  ),
-                  const SizedBox(height: 20),
-                  TextButton(
-                    onPressed: () => context
-                        .read<TimerCubit>()
-                        .cheat(dontWait: const Duration(seconds: -10)),
-                    child: const Text('-10 sec'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
+  State<TimerPage> createState() => _TimerPageState();
 }
 
-class Counter extends StatefulWidget {
-  const Counter({super.key});
-
-  @override
-  State<Counter> createState() => _CounterState();
-}
-
-class _CounterState extends State<Counter> {
+class _TimerPageState extends State<TimerPage> {
   Timer? _timer;
 
   @override
@@ -111,15 +36,86 @@ class _CounterState extends State<Counter> {
 
   @override
   Widget build(BuildContext context) {
+    final working = context.read<TimerCubit>().state?.working ?? false;
+
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: working ? Colors.blue : Colors.orangeAccent,
+    );
+
+    return Theme(
+      data: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: working ? Colors.blue : Colors.orangeAccent,
+        ),
+        useMaterial3: true,
+      ),
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: colorScheme.inversePrimary,
+          leading: IconButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.read<TimerCubit>().clear();
+            },
+            icon: const Icon(Icons.close),
+          ),
+        ),
+        backgroundColor: colorScheme.inversePrimary,
+        body: ListView(
+          children: [
+            Center(
+              // This key is necessary to force rebuilds
+              child: Counter(key: UniqueKey()),
+            ),
+            const SizedBox(height: 60),
+            BlocSelector<TimerCubit, TimerState?, bool>(
+              selector: (timer) => timer?.working ?? true,
+              builder: (context, working) {
+                return Text(
+                  working ? 'Au boulot !' : "Une pause s'impose",
+                  style: Theme.of(context).textTheme.displayMedium,
+                  textAlign: TextAlign.center,
+                );
+              },
+            ),
+          ],
+        ),
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                onPressed: () => context
+                    .read<TimerCubit>()
+                    .cheat(dontWait: const Duration(minutes: -5)),
+                child: const Text('-5 min'),
+              ),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () => context
+                    .read<TimerCubit>()
+                    .cheat(dontWait: const Duration(seconds: -10)),
+                child: const Text('-10 sec'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class Counter extends StatelessWidget {
+  const Counter({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     final timer = context.watch<TimerCubit>().state;
     if (timer == null) return const SizedBox.shrink();
-    final elapsed = timer.timeLeft;
+    final nextStepIn = timer.nextStepIn;
     final formattedElapsed =
-        '${elapsed.inMinutes}:${(elapsed.inSeconds % 60).toString().padLeft(2, '0')}';
-
-    if (elapsed <= Duration.zero) {
-      context.read<TimerCubit>().checkBackgroundUpdate();
-    }
+        '${nextStepIn.inMinutes}:${(nextStepIn.inSeconds % 60).toString().padLeft(2, '0')}';
 
     return Container(
       width: 200,
@@ -132,7 +128,8 @@ class _CounterState extends State<Counter> {
         fit: StackFit.expand,
         children: [
           CircularProgressIndicator(
-            value: elapsed.inSeconds / max(1, timer.duration.inSeconds),
+            value: nextStepIn.inSeconds /
+                max(1, timer.durationOfCurrentStep.inSeconds),
             strokeWidth: 5,
             strokeAlign: BorderSide.strokeAlignInside,
           ),

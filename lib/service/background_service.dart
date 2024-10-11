@@ -2,11 +2,8 @@
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:pomodoro_flutter/service/notification_service.dart';
-import 'package:pomodoro_flutter/cubit/timer_cubit.dart';
+import 'package:pomodoro_flutter/utils.dart';
 import 'package:workmanager/workmanager.dart';
 
 class BackgroundService {
@@ -19,17 +16,21 @@ class BackgroundService {
 Future<void> callbackDispatcher() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  HydratedBloc.storage = await HydratedStorage.build(
-    storageDirectory: kIsWeb
-        ? HydratedStorage.webStorageDirectory
-        : await getApplicationDocumentsDirectory(),
-  );
-
   await NotificationService.initialize(fromWorkmanager: true);
 
   Workmanager().executeTask((task, inputData) async {
     log('Called background task: $task');
-    if (task == 'timerEnd') await TimerCubit.instance.onTimerEnd();
+    if (task == 'notifyTimeToRest') {
+      await NotificationService.instance.sendNotification(
+        id: generateUid(),
+        title: "Une pause s'impose !",
+      );
+    } else if (task == 'notifyTimeToWork') {
+      await NotificationService.instance.sendNotification(
+        id: generateUid(),
+        title: 'Au boulot !',
+      );
+    }
     return Future.value(true);
   });
 }

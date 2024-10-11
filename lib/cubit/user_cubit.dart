@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class UserCubit extends Cubit<User?> {
   UserCubit() : super(FirebaseAuth.instance.currentUser) {
