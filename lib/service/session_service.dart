@@ -13,11 +13,9 @@ class SessionService {
 
   Stream<Iterable<Session>> streamSessionsOf({required String userId}) =>
       _crud.streamQuery(
-        query: (collection) => collection
-            .where(
-              Filter(SessionJsonKeys.userId, isEqualTo: userId),
-            )
-            .orderBy(SessionJsonKeys.startedAt),
+        query: (collection) => collection.where(
+          Filter(SessionJsonKeys.userId, isEqualTo: userId),
+        ),
       );
 }
 

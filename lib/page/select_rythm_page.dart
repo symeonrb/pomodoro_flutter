@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pomodoro_flutter/model/rythm.dart';
 import 'package:pomodoro_flutter/widget/big_button.dart';
@@ -79,26 +80,27 @@ class SelectRythmPage extends StatelessWidget {
               ],
             ),
           ),
-          // const SizedBox(height: 20),
-          // BigButton(
-          //   onPressed: () => Navigator.of(context).pop<Rythm>((2, 1)),
-          //   child: const Row(
-          //     children: [
-          //       Expanded(
-          //         child: Text(
-          //           '2 min',
-          //           textAlign: TextAlign.center,
-          //         ),
-          //       ),
-          //       Expanded(
-          //         child: Text(
-          //           '1 min',
-          //           textAlign: TextAlign.center,
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
+          const SizedBox(height: 20),
+          if (kDebugMode)
+            BigButton(
+              onPressed: () => Navigator.of(context).pop<Rythm>((1, 1)),
+              child: const Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '1 min',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      '1 min',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );

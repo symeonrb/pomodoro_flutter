@@ -32,3 +32,23 @@ extension BuildContextExt on BuildContext {
         MaterialPageRoute(builder: (_) => page),
       );
 }
+
+class PomodoroTheme {
+  static ThemeData get({bool? working}) {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: working == null
+          ? Colors.pinkAccent
+          : working
+              ? Colors.blue
+              : Colors.orangeAccent,
+    );
+
+    return ThemeData(
+      colorScheme: colorScheme,
+      useMaterial3: true,
+      cardTheme: const CardTheme(margin: EdgeInsets.zero),
+      scaffoldBackgroundColor: colorScheme.inversePrimary,
+      appBarTheme: AppBarTheme(backgroundColor: colorScheme.inversePrimary),
+    );
+  }
+}

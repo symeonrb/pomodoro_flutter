@@ -10,6 +10,7 @@ import 'package:pomodoro_flutter/service/authentication_service.dart';
 import 'package:pomodoro_flutter/service/background_service.dart';
 import 'package:pomodoro_flutter/service/notification_service.dart';
 import 'package:pomodoro_flutter/service/session_service.dart';
+import 'package:pomodoro_flutter/utils.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -29,8 +30,6 @@ class PomodoroApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = ColorScheme.fromSeed(seedColor: Colors.pinkAccent);
-
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider(create: (context) => AuthenticationService()),
@@ -49,15 +48,9 @@ class PomodoroApp extends StatelessWidget {
         child: MaterialApp(
           navigatorKey: navigatorKey,
           title: 'Pomodoro',
-          theme: ThemeData(
-            colorScheme: colorScheme,
-            useMaterial3: true,
-            cardTheme: const CardTheme(margin: EdgeInsets.zero),
-            scaffoldBackgroundColor: colorScheme.inversePrimary,
-            appBarTheme:
-                AppBarTheme(backgroundColor: colorScheme.inversePrimary),
-          ),
+          theme: PomodoroTheme.get(),
           home: const HomePage(),
+          debugShowCheckedModeBanner: false,
         ),
       ),
     );

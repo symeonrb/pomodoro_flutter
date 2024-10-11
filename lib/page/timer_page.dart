@@ -42,22 +42,10 @@ class _TimerPageState extends State<TimerPage> {
   Widget build(BuildContext context) {
     final working = context.read<TimerCubit>().state?.working ?? false;
 
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: working ? Colors.blue : Colors.orangeAccent,
-    );
-
     return Theme(
-      data: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: working ? Colors.blue : Colors.orangeAccent,
-        ),
-        useMaterial3: true,
-      ),
+      data: PomodoroTheme.get(working: working),
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: colorScheme.inversePrimary,
-        ),
-        backgroundColor: colorScheme.inversePrimary,
+        appBar: AppBar(),
         body: ListView(
           children: [
             Center(
