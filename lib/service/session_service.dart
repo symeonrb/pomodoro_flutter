@@ -8,7 +8,7 @@ class SessionService {
 
   final _crud = SessionCRUD._();
 
-  Future<void> createSession({required Session session}) =>
+  Future<void> saveSession({required Session session}) =>
       _crud.create(data: session);
 
   Stream<Iterable<Session>> streamSessionsOf({required String userId}) =>

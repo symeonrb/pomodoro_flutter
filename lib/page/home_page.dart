@@ -44,12 +44,14 @@ class HomePage extends StatelessWidget {
           const SizedBox(height: 60),
           BigButton(
             onPressed: () async {
+              final timerCubit = context.read<TimerCubit>();
+
               final rythm =
                   await context.pushPage<Rythm>(const SelectRythmPage());
 
               if (rythm == null) return;
 
-              TimerCubit.instance.start(
+              timerCubit.startSession(
                 workMinutes: rythm.workMinutes,
                 restMinutes: rythm.restMinutes,
               );

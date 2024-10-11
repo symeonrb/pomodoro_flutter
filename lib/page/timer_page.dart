@@ -4,6 +4,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pomodoro_flutter/cubit/timer_cubit.dart';
+import 'package:pomodoro_flutter/cubit/user_cubit.dart';
+import 'package:pomodoro_flutter/model/session.dart';
+import 'package:pomodoro_flutter/service/session_service.dart';
+import 'package:pomodoro_flutter/utils.dart';
+import 'package:pomodoro_flutter/widget/big_button.dart';
 
 class TimerPage extends StatefulWidget {
   const TimerPage({super.key});
@@ -51,13 +56,6 @@ class _TimerPageState extends State<TimerPage> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: colorScheme.inversePrimary,
-          leading: IconButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              context.read<TimerCubit>().clear();
-            },
-            icon: const Icon(Icons.close),
-          ),
         ),
         backgroundColor: colorScheme.inversePrimary,
         body: ListView(
@@ -67,6 +65,14 @@ class _TimerPageState extends State<TimerPage> {
               child: Counter(key: UniqueKey()),
             ),
             const SizedBox(height: 60),
+            Center(
+              child: Image.asset(
+                working ? 'assets/work.png' : 'assets/rest.png',
+                width: 128,
+                height: 128,
+              ),
+            ),
+            const SizedBox(height: 20),
             Text(
               working ? 'Au boulot !' : "Une pause s'impose",
               style: Theme.of(context).textTheme.displayMedium,
@@ -76,22 +82,52 @@ class _TimerPageState extends State<TimerPage> {
         ),
         bottomNavigationBar: Padding(
           padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              TextButton(
-                onPressed: () => context
-                    .read<TimerCubit>()
-                    .cheat(dontWait: const Duration(minutes: -5)),
-                child: const Text('-5 min'),
+              BigButton(
+                onPressed: () {
+                  final userId = context.read<UserCubit>().state?.uid;
+                  if (userId != null) {
+                    // Save session
+                    final session = context.read<TimerCubit>().state;
+                    if (session == null) return;
+
+                    context.read<SessionService>().saveSession(
+                          session: Session(
+                            id: generateUidString(length: 20),
+                            userId: userId,
+                            startedAt: session.startedAt,
+                            endedAt: DateTime.now(),
+                            workMinutes: session.workMinutes,
+                            restMinutes: session.restMinutes,
+                          ),
+                        );
+                  }
+
+                  context.read<TimerCubit>().finishSession();
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Terminer la session'),
               ),
-              const SizedBox(height: 20),
-              TextButton(
-                onPressed: () => context
-                    .read<TimerCubit>()
-                    .cheat(dontWait: const Duration(seconds: -10)),
-                child: const Text('-10 sec'),
-              ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     TextButton(
+              //       onPressed: () => context
+              //           .read<TimerCubit>()
+              //           .cheat(dontWait: const Duration(minutes: -5)),
+              //       child: const Text('-5 min'),
+              //     ),
+              //     const SizedBox(height: 20),
+              //     TextButton(
+              //       onPressed: () => context
+              //           .read<TimerCubit>()
+              //           .cheat(dontWait: const Duration(seconds: -10)),
+              //       child: const Text('-10 sec'),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         ),
@@ -112,8 +148,8 @@ class Counter extends StatelessWidget {
         '${nextStepIn.inMinutes}:${(nextStepIn.inSeconds % 60).toString().padLeft(2, '0')}';
 
     return Container(
-      width: 200,
-      height: 200,
+      width: 150,
+      height: 150,
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
         color: Colors.white,
@@ -131,12 +167,12 @@ class Counter extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 Text(
                   formattedElapsed,
-                  style: Theme.of(context).textTheme.displayMedium,
+                  style: Theme.of(context).textTheme.displaySmall,
                 ),
-                const SizedBox(height: 10),
+                // const SizedBox(height: 10),
                 IconTheme(
                   data: IconThemeData(
                     color: Theme.of(context).colorScheme.primary,

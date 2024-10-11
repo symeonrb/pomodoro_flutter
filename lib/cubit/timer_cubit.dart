@@ -7,9 +7,7 @@ import 'package:pomodoro_flutter/utils.dart';
 import 'package:workmanager/workmanager.dart';
 
 class TimerCubit extends Cubit<TimerState?> {
-  TimerCubit._() : super(null);
-
-  static final instance = TimerCubit._();
+  TimerCubit() : super(null);
 
   Future<void> _restartTimer({bool fromCompletion = false}) async {
     if (!fromCompletion) await _cancelTimer();
@@ -40,7 +38,7 @@ class TimerCubit extends Cubit<TimerState?> {
 
   Future<void> _cancelTimer() => Workmanager().cancelAll();
 
-  Future<void> clear() async {
+  Future<void> finishSession() async {
     emit(null);
     await _cancelTimer();
   }
@@ -57,7 +55,7 @@ class TimerCubit extends Cubit<TimerState?> {
     _restartTimer();
   }
 
-  void start({required int workMinutes, required int restMinutes}) {
+  void startSession({required int workMinutes, required int restMinutes}) {
     emit(
       TimerState.started(workMinutes: workMinutes, restMinutes: restMinutes),
     );

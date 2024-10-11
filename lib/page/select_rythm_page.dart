@@ -79,26 +79,26 @@ class SelectRythmPage extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 20),
-          BigButton(
-            onPressed: () => Navigator.of(context).pop<Rythm>((2, 1)),
-            child: const Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '2 min',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    '1 min',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // const SizedBox(height: 20),
+          // BigButton(
+          //   onPressed: () => Navigator.of(context).pop<Rythm>((2, 1)),
+          //   child: const Row(
+          //     children: [
+          //       Expanded(
+          //         child: Text(
+          //           '2 min',
+          //           textAlign: TextAlign.center,
+          //         ),
+          //       ),
+          //       Expanded(
+          //         child: Text(
+          //           '1 min',
+          //           textAlign: TextAlign.center,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );
