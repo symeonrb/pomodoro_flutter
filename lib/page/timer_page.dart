@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pomodoro_flutter/cubit/timer_cubit.dart';
-import 'package:pomodoro_flutter/model/timer_state.dart';
 
 class TimerPage extends StatefulWidget {
   const TimerPage({super.key});
@@ -68,15 +67,10 @@ class _TimerPageState extends State<TimerPage> {
               child: Counter(key: UniqueKey()),
             ),
             const SizedBox(height: 60),
-            BlocSelector<TimerCubit, TimerState?, bool>(
-              selector: (timer) => timer?.working ?? true,
-              builder: (context, working) {
-                return Text(
-                  working ? 'Au boulot !' : "Une pause s'impose",
-                  style: Theme.of(context).textTheme.displayMedium,
-                  textAlign: TextAlign.center,
-                );
-              },
+            Text(
+              working ? 'Au boulot !' : "Une pause s'impose",
+              style: Theme.of(context).textTheme.displayMedium,
+              textAlign: TextAlign.center,
             ),
           ],
         ),

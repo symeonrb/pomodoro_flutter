@@ -39,7 +39,7 @@ class TimerState {
   Duration get timeElapsed => pausedAt == null
       ? DateTime.now().difference(startedAt)
       : pausedAt!.difference(startedAt);
-  // TODO
+
   bool get working {
     final minutesElapsed = timeElapsed.inMinutes;
     final fullStepMinutes = workMinutes + restMinutes;

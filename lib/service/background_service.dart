@@ -1,4 +1,5 @@
 // Mandatory if the App is obfuscated or using Flutter 3.1+
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
@@ -20,15 +21,38 @@ Future<void> callbackDispatcher() async {
 
   Workmanager().executeTask((task, inputData) async {
     log('Called background task: $task');
+
     if (task == 'notifyTimeToRest') {
-      await NotificationService.instance.sendNotification(
-        id: generateUid(),
-        title: "Une pause s'impose !",
+      final frequencyMinutes = inputData?['frequencyMinutes'] as int? ?? 1;
+
+      unawaited(
+        NotificationService.instance.sendNotification(
+          id: generateUidInt(),
+          title: "Une pause s'impose !",
+        ),
+      );
+
+      await Workmanager().registerOneOffTask(
+        generateUidString(),
+        'notifyTimeToRest',
+        initialDelay: Duration(minutes: frequencyMinutes),
+        inputData: {'frequencyMinutes': frequencyMinutes},
       );
     } else if (task == 'notifyTimeToWork') {
-      await NotificationService.instance.sendNotification(
-        id: generateUid(),
-        title: 'Au boulot !',
+      final frequencyMinutes = inputData?['frequencyMinutes'] as int? ?? 1;
+
+      unawaited(
+        NotificationService.instance.sendNotification(
+          id: generateUidInt(),
+          title: 'Au boulot !',
+        ),
+      );
+
+      await Workmanager().registerOneOffTask(
+        generateUidString(),
+        'notifyTimeToWork',
+        initialDelay: Duration(minutes: frequencyMinutes),
+        inputData: {'frequencyMinutes': frequencyMinutes},
       );
     }
     return Future.value(true);

@@ -3,6 +3,7 @@
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pomodoro_flutter/model/timer_state.dart';
+import 'package:pomodoro_flutter/utils.dart';
 import 'package:workmanager/workmanager.dart';
 
 class TimerCubit extends Cubit<TimerState?> {
@@ -15,34 +16,29 @@ class TimerCubit extends Cubit<TimerState?> {
 
     if (state == null) return;
 
-    final frequency =
-        Duration(minutes: state!.workMinutes + state!.restMinutes);
     final working = state!.working;
     final nextStepIn = state!.nextStepIn;
 
-    await Workmanager().registerPeriodicTask(
+    await Workmanager().registerOneOffTask(
+      generateUidString(),
       'notifyTimeToWork',
-      'notifyTimeToWork',
-      frequency: frequency,
       initialDelay: working
           ? nextStepIn + Duration(minutes: state!.restMinutes)
           : nextStepIn,
+      inputData: {'frequencyMinutes': state!.workMinutes + state!.restMinutes},
     );
 
-    await Workmanager().registerPeriodicTask(
+    await Workmanager().registerOneOffTask(
+      generateUidString(),
       'notifyTimeToRest',
-      'notifyTimeToRest',
-      frequency: frequency,
       initialDelay: working
           ? nextStepIn
           : nextStepIn + Duration(minutes: state!.workMinutes),
+      inputData: {'frequencyMinutes': state!.workMinutes + state!.restMinutes},
     );
   }
 
-  Future<void> _cancelTimer() async {
-    await Workmanager().cancelByUniqueName('notifyTimeToWork');
-    await Workmanager().cancelByUniqueName('notifyTimeToRest');
-  }
+  Future<void> _cancelTimer() => Workmanager().cancelAll();
 
   Future<void> clear() async {
     emit(null);
