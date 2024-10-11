@@ -2,11 +2,6 @@
 // ignore_for_file: invalid_use_of_visible_for_testing_member
 
 class TimerState {
-  TimerState.started({required this.workMinutes, required this.restMinutes})
-      : startedAt = DateTime.now(),
-        pausedAt = null,
-        working = true;
-
   TimerState({
     required this.startedAt,
     required this.pausedAt,
@@ -14,6 +9,11 @@ class TimerState {
     required this.restMinutes,
     required this.working,
   });
+
+  TimerState.started({required this.workMinutes, required this.restMinutes})
+      : startedAt = DateTime.now(),
+        pausedAt = null,
+        working = true;
 
   final DateTime startedAt;
   final DateTime? pausedAt;

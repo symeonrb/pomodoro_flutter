@@ -3,3 +3,7 @@ analyzer:
   errors:
     public_member_api_docs: ignore
     flutter_style_todos: ignore
+  exclude:
+    - lib/firebase_options.dart
+    - "**.freezed.dart"
+    - "**.g.dart"
