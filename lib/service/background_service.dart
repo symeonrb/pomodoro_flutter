@@ -25,38 +25,34 @@ Future<void> callbackDispatcher() async {
     if (task == 'notifyTimeToRest') {
       final frequencyMinutes = inputData?['frequencyMinutes'] as int? ?? 1;
 
-      await NotificationService.instance.cancelAll();
-
-      unawaited(
-        NotificationService.instance.sendNotification(
-          id: generateUidInt(),
-          title: "Une pause s'impose !",
-        ),
-      );
-
       await Workmanager().registerOneOffTask(
         generateUidString(),
         'notifyTimeToRest',
         initialDelay: Duration(minutes: frequencyMinutes),
         inputData: {'frequencyMinutes': frequencyMinutes},
       );
-    } else if (task == 'notifyTimeToWork') {
-      final frequencyMinutes = inputData?['frequencyMinutes'] as int? ?? 1;
 
       await NotificationService.instance.cancelAll();
 
-      unawaited(
-        NotificationService.instance.sendNotification(
-          id: generateUidInt(),
-          title: 'Au boulot !',
-        ),
+      await NotificationService.instance.sendNotification(
+        id: generateUidInt(),
+        title: "Une pause s'impose !",
       );
+    } else if (task == 'notifyTimeToWork') {
+      final frequencyMinutes = inputData?['frequencyMinutes'] as int? ?? 1;
 
       await Workmanager().registerOneOffTask(
         generateUidString(),
         'notifyTimeToWork',
         initialDelay: Duration(minutes: frequencyMinutes),
         inputData: {'frequencyMinutes': frequencyMinutes},
+      );
+
+      await NotificationService.instance.cancelAll();
+
+      await NotificationService.instance.sendNotification(
+        id: generateUidInt(),
+        title: 'Au boulot !',
       );
     }
     return Future.value(true);

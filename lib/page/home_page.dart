@@ -27,8 +27,9 @@ class HomePage extends StatelessWidget {
           UserSection(),
           SizedBox(height: 60),
           SessionSection(),
-          SizedBox(height: 40),
+          SizedBox(height: 60),
           HistorySection(),
+          SizedBox(height: 40),
         ],
       ),
     );
