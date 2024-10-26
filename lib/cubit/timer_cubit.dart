@@ -3,7 +3,6 @@
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pomodoro_flutter/model/timer_state.dart';
-import 'package:pomodoro_flutter/utils.dart';
 import 'package:workmanager/workmanager.dart';
 
 class TimerCubit extends Cubit<TimerState?> {
@@ -18,8 +17,8 @@ class TimerCubit extends Cubit<TimerState?> {
     final nextStepIn = state!.nextStepIn;
 
     await Workmanager().registerOneOffTask(
-      generateUidString(),
-      'notifyTimeToWork',
+      'pomodoro.notifyTimeToWork',
+      'pomodoro.notifyTimeToWork',
       initialDelay: working
           ? nextStepIn + Duration(minutes: state!.restMinutes)
           : nextStepIn,
@@ -27,8 +26,8 @@ class TimerCubit extends Cubit<TimerState?> {
     );
 
     await Workmanager().registerOneOffTask(
-      generateUidString(),
-      'notifyTimeToRest',
+      'pomodoro.notifyTimeToRest',
+      'pomodoro.notifyTimeToRest',
       initialDelay: working
           ? nextStepIn
           : nextStepIn + Duration(minutes: state!.workMinutes),

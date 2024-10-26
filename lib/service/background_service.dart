@@ -18,16 +18,17 @@ Future<void> callbackDispatcher() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await NotificationService.initialize(fromWorkmanager: true);
+  final workManager = Workmanager();
 
-  Workmanager().executeTask((task, inputData) async {
+  workManager.executeTask((task, inputData) async {
     log('Called background task: $task');
 
-    if (task == 'notifyTimeToRest') {
+    if (task == 'pomodoro.notifyTimeToRest') {
       final frequencyMinutes = inputData?['frequencyMinutes'] as int? ?? 1;
 
-      await Workmanager().registerOneOffTask(
-        generateUidString(),
-        'notifyTimeToRest',
+      await workManager.registerOneOffTask(
+        'pomodoro.notifyTimeToRest',
+        'pomodoro.notifyTimeToRest',
         initialDelay: Duration(minutes: frequencyMinutes),
         inputData: {'frequencyMinutes': frequencyMinutes},
       );
@@ -38,12 +39,12 @@ Future<void> callbackDispatcher() async {
         id: generateUidInt(),
         title: "Une pause s'impose !",
       );
-    } else if (task == 'notifyTimeToWork') {
+    } else if (task == 'pomodoro.notifyTimeToWork') {
       final frequencyMinutes = inputData?['frequencyMinutes'] as int? ?? 1;
 
-      await Workmanager().registerOneOffTask(
-        generateUidString(),
-        'notifyTimeToWork',
+      await workManager.registerOneOffTask(
+        'pomodoro.notifyTimeToWork',
+        'pomodoro.notifyTimeToWork',
         initialDelay: Duration(minutes: frequencyMinutes),
         inputData: {'frequencyMinutes': frequencyMinutes},
       );

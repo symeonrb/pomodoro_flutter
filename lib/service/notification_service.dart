@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:pomodoro_flutter/main.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -22,55 +21,53 @@ class NotificationService {
           .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>()
           ?.requestNotificationsPermission();
-    }
 
-    const initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_notification');
-    final initializationSettingsDarwin = DarwinInitializationSettings(
-      onDidReceiveLocalNotification: onDidReceiveLocalNotification,
-      notificationCategories: [
-        DarwinNotificationCategory(
-          'demoCategory',
-          actions: <DarwinNotificationAction>[
-            DarwinNotificationAction.plain('id_1', 'Action 1'),
-            DarwinNotificationAction.plain(
-              'id_2',
-              'Action 2',
-              options: <DarwinNotificationActionOption>{
-                DarwinNotificationActionOption.destructive,
-              },
-            ),
-            DarwinNotificationAction.plain(
-              'id_3',
-              'Action 3',
-              options: <DarwinNotificationActionOption>{
-                DarwinNotificationActionOption.foreground,
-              },
-            ),
-          ],
-          options: <DarwinNotificationCategoryOption>{
-            DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
-          },
-        ),
-      ],
-    );
-    final initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsDarwin,
-    );
-    await instance._plugin.initialize(
-      initializationSettings,
-      // onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
-      onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
-    );
+      const initializationSettingsAndroid =
+          AndroidInitializationSettings('@mipmap/ic_notification');
+      final initializationSettingsDarwin = DarwinInitializationSettings(
+        onDidReceiveLocalNotification: onDidReceiveLocalNotification,
+        notificationCategories: [
+          DarwinNotificationCategory(
+            'demoCategory',
+            actions: <DarwinNotificationAction>[
+              DarwinNotificationAction.plain('id_1', 'Action 1'),
+              DarwinNotificationAction.plain(
+                'id_2',
+                'Action 2',
+                options: <DarwinNotificationActionOption>{
+                  DarwinNotificationActionOption.destructive,
+                },
+              ),
+              DarwinNotificationAction.plain(
+                'id_3',
+                'Action 3',
+                options: <DarwinNotificationActionOption>{
+                  DarwinNotificationActionOption.foreground,
+                },
+              ),
+            ],
+            options: <DarwinNotificationCategoryOption>{
+              DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
+            },
+          ),
+        ],
+      );
+      final initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid,
+        iOS: initializationSettingsDarwin,
+      );
+      await instance._plugin.initialize(
+        initializationSettings,
+        onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+      );
+    }
   }
 
   static Future<void> _configureLocalTimeZone() async {
     if (kIsWeb || Platform.isLinux) return;
 
     tz.initializeTimeZones();
-    final timeZoneName = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(timeZoneName));
+    tz.setLocalLocation(tz.getLocation('Europe/Paris'));
   }
 
   // Annotation ensures that tree-shaking doesn't remove this method

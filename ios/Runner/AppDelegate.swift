@@ -1,6 +1,7 @@
 import Flutter
 import flutter_local_notifications
 import UIKit
+import workmanager
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -14,8 +15,11 @@ import UIKit
     }
 
     if #available(iOS 10.0, *) {
-      UNUserNotificationCenter.current().delegate = self as UNUserNotificationCenterDelegate
+      UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     }
+
+    WorkmanagerPlugin.registerBGProcessingTask(withIdentifier: "pomodoro.notifyTimeToRest")
+    WorkmanagerPlugin.registerBGProcessingTask(withIdentifier: "pomodoro.notifyTimeToWork")
 
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
