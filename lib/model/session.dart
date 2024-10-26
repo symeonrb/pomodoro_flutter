@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'session.freezed.dart';
@@ -8,11 +9,10 @@ class Session with _$Session {
   factory Session({
     required String id,
     required String userId,
-    // TODO : use TimeStamp
-    required DateTime startedAt,
-    required DateTime endedAt,
     required int workMinutes,
     required int restMinutes,
+    @TimestampConverter() required DateTime startedAt,
+    @TimestampConverter() required DateTime endedAt,
   }) = _Session;
 
   /// Required for the override getter
@@ -62,3 +62,17 @@ class Session with _$Session {
 }
 
 typedef SessionJsonKeys = _$$SessionImplJsonKeys;
+
+class TimestampConverter implements JsonConverter<DateTime?, Timestamp?> {
+  const TimestampConverter();
+
+  @override
+  DateTime? fromJson(Timestamp? timestamp) {
+    return timestamp?.toDate();
+  }
+
+  @override
+  Timestamp? toJson(DateTime? datetime) {
+    return datetime != null ? Timestamp.fromDate(datetime) : null;
+  }
+}

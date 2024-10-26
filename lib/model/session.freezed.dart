@@ -22,10 +22,12 @@ Session _$SessionFromJson(Map<String, dynamic> json) {
 mixin _$Session {
   String get id => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
-  DateTime get startedAt => throw _privateConstructorUsedError;
-  DateTime get endedAt => throw _privateConstructorUsedError;
   int get workMinutes => throw _privateConstructorUsedError;
   int get restMinutes => throw _privateConstructorUsedError;
+  @TimestampConverter()
+  DateTime get startedAt => throw _privateConstructorUsedError;
+  @TimestampConverter()
+  DateTime get endedAt => throw _privateConstructorUsedError;
 
   /// Serializes this Session to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -44,10 +46,10 @@ abstract class $SessionCopyWith<$Res> {
   $Res call(
       {String id,
       String userId,
-      DateTime startedAt,
-      DateTime endedAt,
       int workMinutes,
-      int restMinutes});
+      int restMinutes,
+      @TimestampConverter() DateTime startedAt,
+      @TimestampConverter() DateTime endedAt});
 }
 
 /// @nodoc
@@ -67,10 +69,10 @@ class _$SessionCopyWithImpl<$Res, $Val extends Session>
   $Res call({
     Object? id = null,
     Object? userId = null,
-    Object? startedAt = null,
-    Object? endedAt = null,
     Object? workMinutes = null,
     Object? restMinutes = null,
+    Object? startedAt = null,
+    Object? endedAt = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -81,14 +83,6 @@ class _$SessionCopyWithImpl<$Res, $Val extends Session>
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
               as String,
-      startedAt: null == startedAt
-          ? _value.startedAt
-          : startedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      endedAt: null == endedAt
-          ? _value.endedAt
-          : endedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
       workMinutes: null == workMinutes
           ? _value.workMinutes
           : workMinutes // ignore: cast_nullable_to_non_nullable
@@ -97,6 +91,14 @@ class _$SessionCopyWithImpl<$Res, $Val extends Session>
           ? _value.restMinutes
           : restMinutes // ignore: cast_nullable_to_non_nullable
               as int,
+      startedAt: null == startedAt
+          ? _value.startedAt
+          : startedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      endedAt: null == endedAt
+          ? _value.endedAt
+          : endedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
     ) as $Val);
   }
 }
@@ -111,10 +113,10 @@ abstract class _$$SessionImplCopyWith<$Res> implements $SessionCopyWith<$Res> {
   $Res call(
       {String id,
       String userId,
-      DateTime startedAt,
-      DateTime endedAt,
       int workMinutes,
-      int restMinutes});
+      int restMinutes,
+      @TimestampConverter() DateTime startedAt,
+      @TimestampConverter() DateTime endedAt});
 }
 
 /// @nodoc
@@ -132,10 +134,10 @@ class __$$SessionImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? userId = null,
-    Object? startedAt = null,
-    Object? endedAt = null,
     Object? workMinutes = null,
     Object? restMinutes = null,
+    Object? startedAt = null,
+    Object? endedAt = null,
   }) {
     return _then(_$SessionImpl(
       id: null == id
@@ -146,14 +148,6 @@ class __$$SessionImplCopyWithImpl<$Res>
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
               as String,
-      startedAt: null == startedAt
-          ? _value.startedAt
-          : startedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      endedAt: null == endedAt
-          ? _value.endedAt
-          : endedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
       workMinutes: null == workMinutes
           ? _value.workMinutes
           : workMinutes // ignore: cast_nullable_to_non_nullable
@@ -162,6 +156,14 @@ class __$$SessionImplCopyWithImpl<$Res>
           ? _value.restMinutes
           : restMinutes // ignore: cast_nullable_to_non_nullable
               as int,
+      startedAt: null == startedAt
+          ? _value.startedAt
+          : startedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      endedAt: null == endedAt
+          ? _value.endedAt
+          : endedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
     ));
   }
 }
@@ -172,10 +174,10 @@ class _$SessionImpl extends _Session {
   _$SessionImpl(
       {required this.id,
       required this.userId,
-      required this.startedAt,
-      required this.endedAt,
       required this.workMinutes,
-      required this.restMinutes})
+      required this.restMinutes,
+      @TimestampConverter() required this.startedAt,
+      @TimestampConverter() required this.endedAt})
       : super._();
 
   factory _$SessionImpl.fromJson(Map<String, dynamic> json) =>
@@ -186,17 +188,19 @@ class _$SessionImpl extends _Session {
   @override
   final String userId;
   @override
-  final DateTime startedAt;
-  @override
-  final DateTime endedAt;
-  @override
   final int workMinutes;
   @override
   final int restMinutes;
+  @override
+  @TimestampConverter()
+  final DateTime startedAt;
+  @override
+  @TimestampConverter()
+  final DateTime endedAt;
 
   @override
   String toString() {
-    return 'Session(id: $id, userId: $userId, startedAt: $startedAt, endedAt: $endedAt, workMinutes: $workMinutes, restMinutes: $restMinutes)';
+    return 'Session(id: $id, userId: $userId, workMinutes: $workMinutes, restMinutes: $restMinutes, startedAt: $startedAt, endedAt: $endedAt)';
   }
 
   @override
@@ -206,19 +210,19 @@ class _$SessionImpl extends _Session {
             other is _$SessionImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.startedAt, startedAt) ||
-                other.startedAt == startedAt) &&
-            (identical(other.endedAt, endedAt) || other.endedAt == endedAt) &&
             (identical(other.workMinutes, workMinutes) ||
                 other.workMinutes == workMinutes) &&
             (identical(other.restMinutes, restMinutes) ||
-                other.restMinutes == restMinutes));
+                other.restMinutes == restMinutes) &&
+            (identical(other.startedAt, startedAt) ||
+                other.startedAt == startedAt) &&
+            (identical(other.endedAt, endedAt) || other.endedAt == endedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, id, userId, startedAt, endedAt, workMinutes, restMinutes);
+      runtimeType, id, userId, workMinutes, restMinutes, startedAt, endedAt);
 
   /// Create a copy of Session
   /// with the given fields replaced by the non-null parameter values.
@@ -240,10 +244,10 @@ abstract class _Session extends Session {
   factory _Session(
       {required final String id,
       required final String userId,
-      required final DateTime startedAt,
-      required final DateTime endedAt,
       required final int workMinutes,
-      required final int restMinutes}) = _$SessionImpl;
+      required final int restMinutes,
+      @TimestampConverter() required final DateTime startedAt,
+      @TimestampConverter() required final DateTime endedAt}) = _$SessionImpl;
   _Session._() : super._();
 
   factory _Session.fromJson(Map<String, dynamic> json) = _$SessionImpl.fromJson;
@@ -253,13 +257,15 @@ abstract class _Session extends Session {
   @override
   String get userId;
   @override
-  DateTime get startedAt;
-  @override
-  DateTime get endedAt;
-  @override
   int get workMinutes;
   @override
   int get restMinutes;
+  @override
+  @TimestampConverter()
+  DateTime get startedAt;
+  @override
+  @TimestampConverter()
+  DateTime get endedAt;
 
   /// Create a copy of Session
   /// with the given fields replaced by the non-null parameter values.

@@ -1,33 +1,26 @@
-// Timer States
-// ignore_for_file: invalid_use_of_visible_for_testing_member
-
-class TimerState {
-  TimerState({
+class SessionInProgress {
+  SessionInProgress({
     required this.startedAt,
     required this.pausedAt,
     required this.workMinutes,
     required this.restMinutes,
   });
 
-  TimerState.started({required this.workMinutes, required this.restMinutes})
-      : startedAt = DateTime.now(),
-        pausedAt = null;
-
   final DateTime startedAt;
   final DateTime? pausedAt;
   final int workMinutes;
   final int restMinutes;
 
-  TimerState paused() => TimerState(
+  SessionInProgress paused() => SessionInProgress(
         startedAt: startedAt,
         pausedAt: DateTime.now(),
         workMinutes: workMinutes,
         restMinutes: restMinutes,
       );
 
-  TimerState resumed() => pausedAt == null
+  SessionInProgress resumed() => pausedAt == null
       ? this
-      : TimerState(
+      : SessionInProgress(
           startedAt: startedAt.add(DateTime.now().difference(pausedAt!)),
           pausedAt: null,
           workMinutes: workMinutes,

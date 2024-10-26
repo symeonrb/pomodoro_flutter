@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pomodoro_flutter/cubit/history_cubit.dart';
-import 'package:pomodoro_flutter/cubit/timer_cubit.dart';
+import 'package:pomodoro_flutter/cubit/session_in_progress_cubit.dart';
 import 'package:pomodoro_flutter/cubit/user_cubit.dart';
 import 'package:pomodoro_flutter/firebase_options.dart';
 import 'package:pomodoro_flutter/page/home_page.dart';
@@ -36,7 +36,7 @@ class PomodoroApp extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (context) => TimerCubit(),
+            create: (context) => SessionInProgressCubit(),
           ),
           BlocProvider(create: (context) => UserCubit()),
           BlocProvider(

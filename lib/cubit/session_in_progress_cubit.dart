@@ -4,11 +4,11 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pomodoro_flutter/model/timer_state.dart';
+import 'package:pomodoro_flutter/model/session_in_grogress.dart';
 import 'package:pomodoro_flutter/service/notification_service.dart';
 
-class TimerCubit extends Cubit<TimerState?> {
-  TimerCubit() : super(null);
+class SessionInProgressCubit extends Cubit<SessionInProgress?> {
+  SessionInProgressCubit() : super(null);
 
   final notificationService = NotificationService.instance;
 
@@ -66,7 +66,12 @@ class TimerCubit extends Cubit<TimerState?> {
 
   void startSession({required int workMinutes, required int restMinutes}) {
     emit(
-      TimerState.started(workMinutes: workMinutes, restMinutes: restMinutes),
+      SessionInProgress(
+        workMinutes: workMinutes,
+        restMinutes: restMinutes,
+        startedAt: DateTime.now(),
+        pausedAt: null,
+      ),
     );
     _restartTimer();
   }
@@ -74,7 +79,7 @@ class TimerCubit extends Cubit<TimerState?> {
   void cheat({required Duration dontWait}) {
     if (state == null) return;
     emit(
-      TimerState(
+      SessionInProgress(
         startedAt: state!.startedAt.add(dontWait),
         pausedAt: state!.pausedAt,
         workMinutes: state!.workMinutes,

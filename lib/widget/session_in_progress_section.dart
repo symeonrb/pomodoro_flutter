@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pomodoro_flutter/cubit/timer_cubit.dart';
+import 'package:pomodoro_flutter/cubit/session_in_progress_cubit.dart';
 import 'package:pomodoro_flutter/main.dart';
 import 'package:pomodoro_flutter/model/rythm.dart';
 import 'package:pomodoro_flutter/page/select_rythm_page.dart';
@@ -10,14 +10,15 @@ import 'package:pomodoro_flutter/page/timer_page.dart';
 import 'package:pomodoro_flutter/utils.dart';
 import 'package:pomodoro_flutter/widget/big_button.dart';
 
-class SessionSection extends StatefulWidget {
-  const SessionSection({super.key});
+class SessionInProgressSection extends StatefulWidget {
+  const SessionInProgressSection({super.key});
 
   @override
-  State<SessionSection> createState() => _SessionSectionState();
+  State<SessionInProgressSection> createState() =>
+      _SessionInProgressSectionState();
 }
 
-class _SessionSectionState extends State<SessionSection> {
+class _SessionInProgressSectionState extends State<SessionInProgressSection> {
   Timer? _timer;
 
   @override
@@ -40,18 +41,18 @@ class _SessionSectionState extends State<SessionSection> {
 
   @override
   Widget build(BuildContext context) {
-    final working = context.read<TimerCubit>().state?.working;
+    final working = context.read<SessionInProgressCubit>().state?.working;
 
     if (working == null) {
       return BigButton(
         onPressed: () async {
-          final timerCubit = context.read<TimerCubit>();
+          final sessionInProgressCubit = context.read<SessionInProgressCubit>();
 
           final rythm = await context.pushPage<Rythm>(const SelectRythmPage());
 
           if (rythm == null) return;
 
-          timerCubit.startSession(
+          sessionInProgressCubit.startSession(
             workMinutes: rythm.workMinutes,
             restMinutes: rythm.restMinutes,
           );

@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pomodoro_flutter/cubit/timer_cubit.dart';
+import 'package:pomodoro_flutter/cubit/session_in_progress_cubit.dart';
 import 'package:pomodoro_flutter/cubit/user_cubit.dart';
 import 'package:pomodoro_flutter/model/session.dart';
 import 'package:pomodoro_flutter/service/session_service.dart';
@@ -40,7 +40,8 @@ class _TimerPageState extends State<TimerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final working = context.read<TimerCubit>().state?.working ?? false;
+    final working =
+        context.read<SessionInProgressCubit>().state?.working ?? false;
 
     return Theme(
       data: PomodoroTheme.get(working: working),
@@ -78,7 +79,8 @@ class _TimerPageState extends State<TimerPage> {
                   final userId = context.read<UserCubit>().state?.uid;
                   if (userId != null) {
                     // Save session
-                    final session = context.read<TimerCubit>().state;
+                    final session =
+                        context.read<SessionInProgressCubit>().state;
                     if (session == null) return;
 
                     context.read<SessionService>().saveSession(
@@ -93,29 +95,29 @@ class _TimerPageState extends State<TimerPage> {
                         );
                   }
 
-                  context.read<TimerCubit>().finishSession();
+                  context.read<SessionInProgressCubit>().finishSession();
                   Navigator.of(context).pop();
                 },
                 child: const Text('Terminer la session'),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(
-                    onPressed: () => context
-                        .read<TimerCubit>()
-                        .cheat(dontWait: const Duration(minutes: -5)),
-                    child: const Text('-5 min'),
-                  ),
-                  const SizedBox(height: 20),
-                  TextButton(
-                    onPressed: () => context
-                        .read<TimerCubit>()
-                        .cheat(dontWait: const Duration(seconds: -10)),
-                    child: const Text('-10 sec'),
-                  ),
-                ],
-              ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     TextButton(
+              //       onPressed: () => context
+              //           .read<SessionInProgressCubit>()
+              //           .cheat(dontWait: const Duration(minutes: -5)),
+              //       child: const Text('-5 min'),
+              //     ),
+              //     const SizedBox(height: 20),
+              //     TextButton(
+              //       onPressed: () => context
+              //           .read<SessionInProgressCubit>()
+              //           .cheat(dontWait: const Duration(seconds: -10)),
+              //       child: const Text('-10 sec'),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         ),
@@ -129,7 +131,7 @@ class Counter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timer = context.watch<TimerCubit>().state;
+    final timer = context.watch<SessionInProgressCubit>().state;
     if (timer == null) return const SizedBox.shrink();
     final nextStepIn = timer.nextStepIn;
     final formattedElapsed =
@@ -168,11 +170,13 @@ class Counter extends StatelessWidget {
                   ),
                   child: timer.isRunning
                       ? IconButton(
-                          onPressed: context.read<TimerCubit>().pause,
+                          onPressed:
+                              context.read<SessionInProgressCubit>().pause,
                           icon: const Icon(Icons.pause),
                         )
                       : IconButton(
-                          onPressed: context.read<TimerCubit>().resume,
+                          onPressed:
+                              context.read<SessionInProgressCubit>().resume,
                           icon: const Icon(Icons.play_arrow),
                         ),
                 ),
