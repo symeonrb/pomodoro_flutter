@@ -1,12 +1,16 @@
 // Timer States
 // ignore_for_file: invalid_use_of_visible_for_testing_member
 
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pomodoro_flutter/model/timer_state.dart';
-import 'package:workmanager/workmanager.dart';
+import 'package:pomodoro_flutter/service/notification_service.dart';
 
 class TimerCubit extends Cubit<TimerState?> {
   TimerCubit() : super(null);
+
+  final notificationService = NotificationService.instance;
 
   Future<void> _restartTimer({bool fromCompletion = false}) async {
     if (!fromCompletion) await _cancelTimer();
@@ -14,28 +18,34 @@ class TimerCubit extends Cubit<TimerState?> {
     if (state == null) return;
 
     final working = state!.working;
-    final nextStepIn = state!.nextStepIn;
+    var nextStepIn = state!.nextStepIn;
 
-    await Workmanager().registerOneOffTask(
-      'pomodoro.notifyTimeToWork',
-      'pomodoro.notifyTimeToWork',
-      initialDelay: working
-          ? nextStepIn + Duration(minutes: state!.restMinutes)
-          : nextStepIn,
-      inputData: {'frequencyMinutes': state!.workMinutes + state!.restMinutes},
-    );
+    // Schedule every notification for the next 24 hours
+    while (nextStepIn.inHours < 24) {
+      unawaited(
+        notificationService.scheduleNotification(
+          title: 'Au boulot !',
+          showIn: working
+              ? nextStepIn + Duration(minutes: state!.restMinutes)
+              : nextStepIn,
+        ),
+      );
 
-    await Workmanager().registerOneOffTask(
-      'pomodoro.notifyTimeToRest',
-      'pomodoro.notifyTimeToRest',
-      initialDelay: working
-          ? nextStepIn
-          : nextStepIn + Duration(minutes: state!.workMinutes),
-      inputData: {'frequencyMinutes': state!.workMinutes + state!.restMinutes},
-    );
+      unawaited(
+        notificationService.scheduleNotification(
+          title: "Une pause s'impose !",
+          showIn: working
+              ? nextStepIn
+              : nextStepIn + Duration(minutes: state!.workMinutes),
+        ),
+      );
+
+      nextStepIn = nextStepIn +
+          Duration(minutes: state!.workMinutes + state!.restMinutes);
+    }
   }
 
-  Future<void> _cancelTimer() => Workmanager().cancelAll();
+  Future<void> _cancelTimer() => notificationService.cancelAll();
 
   Future<void> finishSession() async {
     emit(null);

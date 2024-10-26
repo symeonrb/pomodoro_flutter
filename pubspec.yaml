@@ -22,12 +22,6 @@ dependencies:
   google_sign_in: ^6.2.1
   intl: ^0.19.0
   timezone: ^0.9.4
-  # workmanager: ^0.5.2
-  # See https://github.com/fluttercommunity/flutter_workmanager/issues/551
-  workmanager:
-    git:
-      url: https://github.com/fluttercommunity/flutter_workmanager.git
-      ref: b783000
 
 dev_dependencies:
   build_runner: ^2.4.6

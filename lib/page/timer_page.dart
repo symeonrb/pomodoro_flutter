@@ -98,24 +98,24 @@ class _TimerPageState extends State<TimerPage> {
                 },
                 child: const Text('Terminer la session'),
               ),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: [
-              //     TextButton(
-              //       onPressed: () => context
-              //           .read<TimerCubit>()
-              //           .cheat(dontWait: const Duration(minutes: -5)),
-              //       child: const Text('-5 min'),
-              //     ),
-              //     const SizedBox(height: 20),
-              //     TextButton(
-              //       onPressed: () => context
-              //           .read<TimerCubit>()
-              //           .cheat(dontWait: const Duration(seconds: -10)),
-              //       child: const Text('-10 sec'),
-              //     ),
-              //   ],
-              // ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () => context
+                        .read<TimerCubit>()
+                        .cheat(dontWait: const Duration(minutes: -5)),
+                    child: const Text('-5 min'),
+                  ),
+                  const SizedBox(height: 20),
+                  TextButton(
+                    onPressed: () => context
+                        .read<TimerCubit>()
+                        .cheat(dontWait: const Duration(seconds: -10)),
+                    child: const Text('-10 sec'),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

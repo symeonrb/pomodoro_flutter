@@ -7,7 +7,6 @@ import 'package:pomodoro_flutter/cubit/user_cubit.dart';
 import 'package:pomodoro_flutter/firebase_options.dart';
 import 'package:pomodoro_flutter/page/home_page.dart';
 import 'package:pomodoro_flutter/service/authentication_service.dart';
-import 'package:pomodoro_flutter/service/background_service.dart';
 import 'package:pomodoro_flutter/service/notification_service.dart';
 import 'package:pomodoro_flutter/service/session_service.dart';
 import 'package:pomodoro_flutter/utils.dart';
@@ -19,7 +18,6 @@ Future<void> main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  await BackgroundService.initialize();
   await NotificationService.initialize();
 
   runApp(const PomodoroApp());
@@ -37,7 +35,9 @@ class PomodoroApp extends StatelessWidget {
       ],
       child: MultiBlocProvider(
         providers: [
-          BlocProvider(create: (context) => TimerCubit()),
+          BlocProvider(
+            create: (context) => TimerCubit(),
+          ),
           BlocProvider(create: (context) => UserCubit()),
           BlocProvider(
             create: (context) => HistoryCubit(
