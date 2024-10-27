@@ -33,15 +33,6 @@ class Session with _$Session {
 
   Duration get timeElapsed => endedAt.difference(startedAt);
 
-  bool get wasWorkingWhenStopped {
-    final minutesElapsed = timeElapsed.inMinutes;
-    final fullStepMinutes = workMinutes + restMinutes;
-
-    final currentFullStepMinutes = minutesElapsed % fullStepMinutes;
-
-    return currentFullStepMinutes < workMinutes;
-  }
-
   /// Return the number of full steps, completed or started.
   /// Ex : on a 45/15 rythm, and 2h30 in total, this will return 3
   int get fullSteps {
@@ -52,13 +43,24 @@ class Session with _$Session {
     return (minutesElapsed / fullStepMinutes).ceil();
   }
 
+  // The following code could be used for more precise statistics
+
+  // bool get wasWorkingWhenEnded {
+  //   final minutesElapsed = timeElapsed.inMinutes;
+  //   final fullStepMinutes = workMinutes + restMinutes;
+
+  //   final currentFullStepMinutes = minutesElapsed % fullStepMinutes;
+
+  //   return currentFullStepMinutes < workMinutes;
+  // }
+
   /// Return the number of working steps, completed or started.
   /// Ex : on a 45/15 rythm, and 2h30 in total, this will return 3
-  int get workingSteps => fullSteps;
+  // int get workingSteps => fullSteps;
 
   /// Return the number of resting steps, completed or started.
   /// Ex : on a 45/15 rythm, and 2h30 in total, this will return 2
-  int get restingSteps => wasWorkingWhenStopped ? fullSteps - 1 : fullSteps;
+  // int get restingSteps => wasWorkingWhenEnded ? fullSteps - 1 : fullSteps;
 }
 
 typedef SessionJsonKeys = _$$SessionImplJsonKeys;

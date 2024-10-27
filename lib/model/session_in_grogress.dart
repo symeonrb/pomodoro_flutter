@@ -60,6 +60,7 @@ class SessionInProgress {
     }
   }
 
+  /// Return the duration until the current step is completed.
   Duration get nextStepIn {
     final left = durationOfCurrentStep - timeElapsedSinceLastStep;
     if (left.isNegative) return Duration.zero;

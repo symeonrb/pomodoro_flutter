@@ -20,12 +20,11 @@ class NotificationService {
             AndroidFlutterLocalNotificationsPlugin>()
         ?.requestNotificationsPermission();
 
-    const initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_notification');
-    const initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
+    await instance._plugin.initialize(
+      const InitializationSettings(
+        android: AndroidInitializationSettings('@mipmap/ic_notification'),
+      ),
     );
-    await instance._plugin.initialize(initializationSettings);
   }
 
   static Future<void> _configureLocalTimeZone() async {
@@ -39,34 +38,34 @@ class NotificationService {
 
   Future<void> cancelAll() => _plugin.cancelAll();
 
+  /// A notification will be triggerd in [showIn] minutes.
   Future<void> scheduleNotification({
     required String title,
     required Duration showIn,
-  }) async {
-    await _plugin.zonedSchedule(
-      generateUidInt(),
-      title,
-      null,
-      tz.TZDateTime.now(tz.local).add(showIn),
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'pomodoro',
-          'Pomodoro',
-          channelDescription: 'Pomodoro channel',
-          visibility: NotificationVisibility.public,
-          importance: Importance.max,
-          priority: Priority.max,
-          audioAttributesUsage: AudioAttributesUsage.alarm,
-          sound: RawResourceAndroidNotificationSound('pomodoro'),
+  }) =>
+      _plugin.zonedSchedule(
+        generateUidInt(),
+        title,
+        null,
+        tz.TZDateTime.now(tz.local).add(showIn),
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'pomodoro',
+            'Pomodoro',
+            channelDescription: 'Pomodoro channel',
+            visibility: NotificationVisibility.public,
+            importance: Importance.max,
+            priority: Priority.max,
+            audioAttributesUsage: AudioAttributesUsage.alarm,
+            sound: RawResourceAndroidNotificationSound('pomodoro'),
+          ),
+          iOS: DarwinNotificationDetails(
+            sound: 'pomodoro.aiff',
+          ),
         ),
-        iOS: DarwinNotificationDetails(
-          sound: 'pomodoro.aiff',
-        ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.alarmClock,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
-    );
-  }
+        androidScheduleMode: AndroidScheduleMode.alarmClock,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
 }

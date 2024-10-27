@@ -7,10 +7,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pomodoro_flutter/model/session_in_grogress.dart';
 import 'package:pomodoro_flutter/service/notification_service.dart';
 
+/// This cubit holds the session that isn't completed yet.
 class SessionInProgressCubit extends Cubit<SessionInProgress?> {
   SessionInProgressCubit() : super(null);
-
-  final notificationService = NotificationService.instance;
 
   Future<void> _restartTimer({bool fromCompletion = false}) async {
     if (!fromCompletion) await _cancelTimer();
@@ -23,7 +22,7 @@ class SessionInProgressCubit extends Cubit<SessionInProgress?> {
     // Schedule every notification for the next 24 hours
     while (nextStepIn.inHours < 24) {
       unawaited(
-        notificationService.scheduleNotification(
+        NotificationService.instance.scheduleNotification(
           title: 'Au boulot !',
           showIn: working
               ? nextStepIn + Duration(minutes: state!.restMinutes)
@@ -32,7 +31,7 @@ class SessionInProgressCubit extends Cubit<SessionInProgress?> {
       );
 
       unawaited(
-        notificationService.scheduleNotification(
+        NotificationService.instance.scheduleNotification(
           title: "Une pause s'impose !",
           showIn: working
               ? nextStepIn
@@ -45,7 +44,7 @@ class SessionInProgressCubit extends Cubit<SessionInProgress?> {
     }
   }
 
-  Future<void> _cancelTimer() => notificationService.cancelAll();
+  Future<void> _cancelTimer() => NotificationService.instance.cancelAll();
 
   Future<void> finishSession() async {
     emit(null);

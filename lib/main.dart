@@ -8,7 +8,7 @@ import 'package:pomodoro_flutter/firebase_options.dart';
 import 'package:pomodoro_flutter/page/home_page.dart';
 import 'package:pomodoro_flutter/service/authentication_service.dart';
 import 'package:pomodoro_flutter/service/notification_service.dart';
-import 'package:pomodoro_flutter/service/session_service.dart';
+import 'package:pomodoro_flutter/service/database_service.dart';
 import 'package:pomodoro_flutter/utils.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -31,7 +31,7 @@ class PomodoroApp extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider(create: (context) => AuthenticationService()),
-        RepositoryProvider(create: (context) => SessionService()),
+        RepositoryProvider(create: (context) => DatabaseService()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -41,7 +41,7 @@ class PomodoroApp extends StatelessWidget {
           BlocProvider(create: (context) => UserCubit()),
           BlocProvider(
             create: (context) => HistoryCubit(
-              sessionService: context.read(),
+              databaseService: context.read(),
             ),
           ),
         ],

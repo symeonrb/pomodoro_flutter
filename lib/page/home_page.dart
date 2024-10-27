@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pomodoro_flutter/cubit/session_in_progress_cubit.dart';
-import 'package:pomodoro_flutter/page/timer_page.dart';
+import 'package:pomodoro_flutter/page/session_in_progress_page.dart';
 import 'package:pomodoro_flutter/utils.dart';
 import 'package:pomodoro_flutter/widget/history_section.dart';
 import 'package:pomodoro_flutter/widget/session_in_progress_section.dart';
@@ -13,9 +13,11 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // This callback allows the app to instantly open the SessionInProgressPage
+    // if a session is in progress.
     if (context.read<SessionInProgressCubit>().state != null) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
-        context.pushPage(const TimerPage());
+        context.pushPage(const SessionInProgressPage());
       });
     }
 

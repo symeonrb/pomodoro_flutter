@@ -6,7 +6,7 @@ import 'package:pomodoro_flutter/cubit/session_in_progress_cubit.dart';
 import 'package:pomodoro_flutter/main.dart';
 import 'package:pomodoro_flutter/model/rythm.dart';
 import 'package:pomodoro_flutter/page/select_rythm_page.dart';
-import 'package:pomodoro_flutter/page/timer_page.dart';
+import 'package:pomodoro_flutter/page/session_in_progress_page.dart';
 import 'package:pomodoro_flutter/utils.dart';
 import 'package:pomodoro_flutter/widget/big_button.dart';
 
@@ -57,7 +57,8 @@ class _SessionInProgressSectionState extends State<SessionInProgressSection> {
             restMinutes: rythm.restMinutes,
           );
 
-          await navigatorKey.currentContext?.pushPage(const TimerPage());
+          await navigatorKey.currentContext
+              ?.pushPage(const SessionInProgressPage());
         },
         child: Column(
           children: [
@@ -73,7 +74,7 @@ class _SessionInProgressSectionState extends State<SessionInProgressSection> {
     }
 
     return BigButton(
-      onPressed: () => context.pushPage(const TimerPage()),
+      onPressed: () => context.pushPage(const SessionInProgressPage()),
       child: Row(
         children: [
           Expanded(

@@ -1,23 +1,23 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pomodoro_flutter/cubit/session_in_progress_cubit.dart';
 import 'package:pomodoro_flutter/cubit/user_cubit.dart';
 import 'package:pomodoro_flutter/model/session.dart';
-import 'package:pomodoro_flutter/service/session_service.dart';
+import 'package:pomodoro_flutter/service/database_service.dart';
 import 'package:pomodoro_flutter/utils.dart';
 import 'package:pomodoro_flutter/widget/big_button.dart';
+import 'package:pomodoro_flutter/widget/countdown_widget.dart';
 
-class TimerPage extends StatefulWidget {
-  const TimerPage({super.key});
+class SessionInProgressPage extends StatefulWidget {
+  const SessionInProgressPage({super.key});
 
   @override
-  State<TimerPage> createState() => _TimerPageState();
+  State<SessionInProgressPage> createState() => _SessionInProgressPageState();
 }
 
-class _TimerPageState extends State<TimerPage> {
+class _SessionInProgressPageState extends State<SessionInProgressPage> {
   Timer? _timer;
 
   @override
@@ -25,7 +25,8 @@ class _TimerPageState extends State<TimerPage> {
     super.initState();
 
     // This timer allows the ui to refresh every 0.1 seconds,
-    // in order to see the countdown
+    // in order to see the countdown, and for the theme to change when needed.
+    // We cannot replace this by a listener, since there is no data update.
     _timer = Timer.periodic(
       const Duration(milliseconds: 100),
       (timer) => setState(() {}),
@@ -34,7 +35,7 @@ class _TimerPageState extends State<TimerPage> {
 
   @override
   void dispose() {
-    _timer?.cancel(); // Cancel the timer when the widget is disposed
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -50,8 +51,8 @@ class _TimerPageState extends State<TimerPage> {
         body: ListView(
           children: [
             Center(
-              // This key is necessary to force rebuilds
-              child: Counter(key: UniqueKey()),
+              // This key is necessary to force ui rebuilds.
+              child: CountdownWidget(key: UniqueKey()),
             ),
             const SizedBox(height: 60),
             Center(
@@ -83,7 +84,7 @@ class _TimerPageState extends State<TimerPage> {
                         context.read<SessionInProgressCubit>().state;
                     if (session == null) return;
 
-                    context.read<SessionService>().saveSession(
+                    context.read<DatabaseService>().saveSession(
                           session: Session(
                             id: generateUidString(length: 20),
                             userId: userId,
@@ -100,6 +101,8 @@ class _TimerPageState extends State<TimerPage> {
                 },
                 child: const Text('Terminer la session'),
               ),
+
+              // The following code helps to speed up a session when debugging
               // Row(
               //   mainAxisAlignment: MainAxisAlignment.center,
               //   children: [
@@ -121,69 +124,6 @@ class _TimerPageState extends State<TimerPage> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class Counter extends StatelessWidget {
-  const Counter({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final timer = context.watch<SessionInProgressCubit>().state;
-    if (timer == null) return const SizedBox.shrink();
-    final nextStepIn = timer.nextStepIn;
-    final formattedElapsed = '${nextStepIn.inMinutes}:'
-        '${(nextStepIn.inSeconds % 60).toString().padLeft(2, '0')}';
-
-    return Container(
-      width: 150,
-      height: 150,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white,
-      ),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          CircularProgressIndicator(
-            value: nextStepIn.inSeconds /
-                max(1, timer.durationOfCurrentStep.inSeconds),
-            strokeWidth: 5,
-            strokeAlign: BorderSide.strokeAlignInside,
-          ),
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 20),
-                Text(
-                  formattedElapsed,
-                  style: Theme.of(context).textTheme.displaySmall,
-                ),
-                // const SizedBox(height: 10),
-                IconTheme(
-                  data: IconThemeData(
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 40,
-                  ),
-                  child: timer.isRunning
-                      ? IconButton(
-                          onPressed:
-                              context.read<SessionInProgressCubit>().pause,
-                          icon: const Icon(Icons.pause),
-                        )
-                      : IconButton(
-                          onPressed:
-                              context.read<SessionInProgressCubit>().resume,
-                          icon: const Icon(Icons.play_arrow),
-                        ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
