@@ -58,7 +58,8 @@ class SessionsDayTile extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         const SizedBox(height: 4),
-        ...sessions.map(SessionTile.new),
+        ...(sessions..sort((a, b) => b.startedAt.compareTo(a.startedAt)))
+            .map(SessionTile.new),
         const SizedBox(height: 8),
       ],
     );
