@@ -12,8 +12,10 @@ _$SessionImpl _$$SessionImplFromJson(Map<String, dynamic> json) =>
       userId: json['userId'] as String,
       workMinutes: (json['workMinutes'] as num).toInt(),
       restMinutes: (json['restMinutes'] as num).toInt(),
-      startedAt: DateTime.parse(json['startedAt'] as String),
-      endedAt: DateTime.parse(json['endedAt'] as String),
+      startedAt:
+          const TimestampConverter().fromJson(json['startedAt'] as Timestamp),
+      endedAt:
+          const TimestampConverter().fromJson(json['endedAt'] as Timestamp),
     );
 
 abstract final class _$$SessionImplJsonKeys {
@@ -31,6 +33,6 @@ Map<String, dynamic> _$$SessionImplToJson(_$SessionImpl instance) =>
       'userId': instance.userId,
       'workMinutes': instance.workMinutes,
       'restMinutes': instance.restMinutes,
-      'startedAt': instance.startedAt.toIso8601String(),
-      'endedAt': instance.endedAt.toIso8601String(),
+      'startedAt': const TimestampConverter().toJson(instance.startedAt),
+      'endedAt': const TimestampConverter().toJson(instance.endedAt),
     };

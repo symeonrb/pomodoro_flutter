@@ -171,7 +171,7 @@ class __$$SessionImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$SessionImpl extends _Session {
-  _$SessionImpl(
+  const _$SessionImpl(
       {required this.id,
       required this.userId,
       required this.workMinutes,
@@ -241,14 +241,14 @@ class _$SessionImpl extends _Session {
 }
 
 abstract class _Session extends Session {
-  factory _Session(
+  const factory _Session(
       {required final String id,
       required final String userId,
       required final int workMinutes,
       required final int restMinutes,
       @TimestampConverter() required final DateTime startedAt,
       @TimestampConverter() required final DateTime endedAt}) = _$SessionImpl;
-  _Session._() : super._();
+  const _Session._() : super._();
 
   factory _Session.fromJson(Map<String, dynamic> json) = _$SessionImpl.fromJson;
 

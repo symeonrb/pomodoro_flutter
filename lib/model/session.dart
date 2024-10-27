@@ -6,7 +6,7 @@ part 'session.g.dart';
 
 @freezed
 class Session with _$Session {
-  factory Session({
+  const factory Session({
     required String id,
     required String userId,
     required int workMinutes,
@@ -63,16 +63,12 @@ class Session with _$Session {
 
 typedef SessionJsonKeys = _$$SessionImplJsonKeys;
 
-class TimestampConverter implements JsonConverter<DateTime?, Timestamp?> {
+class TimestampConverter implements JsonConverter<DateTime, Timestamp> {
   const TimestampConverter();
 
   @override
-  DateTime? fromJson(Timestamp? timestamp) {
-    return timestamp?.toDate();
-  }
+  DateTime fromJson(Timestamp timestamp) => timestamp.toDate();
 
   @override
-  Timestamp? toJson(DateTime? datetime) {
-    return datetime != null ? Timestamp.fromDate(datetime) : null;
-  }
+  Timestamp toJson(DateTime datetime) => Timestamp.fromDate(datetime);
 }

@@ -134,8 +134,8 @@ class Counter extends StatelessWidget {
     final timer = context.watch<SessionInProgressCubit>().state;
     if (timer == null) return const SizedBox.shrink();
     final nextStepIn = timer.nextStepIn;
-    final formattedElapsed =
-        '${nextStepIn.inMinutes}:${(nextStepIn.inSeconds % 60).toString().padLeft(2, '0')}';
+    final formattedElapsed = '${nextStepIn.inMinutes}:'
+        '${(nextStepIn.inSeconds % 60).toString().padLeft(2, '0')}';
 
     return Container(
       width: 150,
