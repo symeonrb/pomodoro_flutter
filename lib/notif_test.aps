@@ -1,0 +1,17 @@
+{
+  "aps": {
+    "alert": {
+      "title": "title",
+      "body": "body",
+    },
+    "sound": "pomodoro.aiff",
+    "category": "FLUTTER_NOTIFICATION_CLICK",
+    "badge": 1
+  },
+  "gcm.message_id": "393099858694",
+  "metadata": {
+    "type": "waiting_room"
+  },
+  "click_action": "FLUTTER_NOTIFICATION_CLICK",
+  "Simulator Target Bundle": "com.pomodoro.flutter"
+}
