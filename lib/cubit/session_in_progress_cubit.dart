@@ -20,7 +20,7 @@ class SessionInProgressCubit extends Cubit<SessionInProgress?> {
     var nextStepIn = state!.nextStepIn;
 
     // Schedule every notification for the next 24 hours
-    while (nextStepIn.inHours < 24) {
+    for (var i = 0; i < 10; i++) {
       unawaited(
         NotificationService.instance.scheduleNotification(
           title: 'Au boulot !',

@@ -50,10 +50,9 @@ class _SessionInProgressPageState extends State<SessionInProgressPage> {
         appBar: AppBar(),
         body: ListView(
           children: [
-            Center(
-              // This key is necessary to force ui rebuilds.
-              child: CountdownWidget(key: UniqueKey()),
-            ),
+            // We don't use const here in order to force rebuilds
+            // ignore: prefer_const_constructors
+            Center(child: CountdownWidget()),
             const SizedBox(height: 60),
             Center(
               child: Image.asset(
@@ -70,60 +69,71 @@ class _SessionInProgressPageState extends State<SessionInProgressPage> {
             ),
           ],
         ),
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              BigButton(
-                onPressed: () {
-                  final userId = context.read<UserCubit>().state?.uid;
-                  if (userId != null) {
-                    // Save session
-                    final session =
-                        context.read<SessionInProgressCubit>().state;
-                    if (session == null) return;
+        bottomNavigationBar: const NewWidget(),
+      ),
+    );
+  }
+}
 
-                    context.read<DatabaseService>().saveSession(
-                          session: Session(
-                            id: generateUidString(length: 20),
-                            userId: userId,
-                            startedAt: session.startedAt,
-                            endedAt: DateTime.now(),
-                            workMinutes: session.workMinutes,
-                            restMinutes: session.restMinutes,
-                          ),
-                        );
-                  }
+class NewWidget extends StatelessWidget {
+  const NewWidget({
+    super.key,
+  });
 
-                  context.read<SessionInProgressCubit>().finishSession();
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Terminer la session'),
-              ),
+  @override
+  Widget build(BuildContext context) {
+    print('BUILD NewWidget');
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          BigButton(
+            onPressed: () {
+              final userId = context.read<UserCubit>().state?.uid;
+              if (userId != null) {
+                // Save session
+                final session = context.read<SessionInProgressCubit>().state;
+                if (session == null) return;
 
-              // The following code helps to speed up a session when debugging
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: [
-              //     TextButton(
-              //       onPressed: () => context
-              //           .read<SessionInProgressCubit>()
-              //           .cheat(dontWait: const Duration(minutes: -5)),
-              //       child: const Text('-5 min'),
-              //     ),
-              //     const SizedBox(height: 20),
-              //     TextButton(
-              //       onPressed: () => context
-              //           .read<SessionInProgressCubit>()
-              //           .cheat(dontWait: const Duration(seconds: -10)),
-              //       child: const Text('-10 sec'),
-              //     ),
-              //   ],
-              // ),
-            ],
+                context.read<DatabaseService>().saveSession(
+                      session: Session(
+                        id: generateUidString(length: 20),
+                        userId: userId,
+                        startedAt: session.startedAt,
+                        endedAt: DateTime.now(),
+                        workMinutes: session.workMinutes,
+                        restMinutes: session.restMinutes,
+                      ),
+                    );
+              }
+
+              context.read<SessionInProgressCubit>().finishSession();
+              Navigator.of(context).pop();
+            },
+            child: const Text('Terminer la session'),
           ),
-        ),
+
+          // The following code helps to speed up a session when debugging
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.center,
+          //   children: [
+          //     TextButton(
+          //       onPressed: () => context
+          //           .read<SessionInProgressCubit>()
+          //           .cheat(dontWait: const Duration(minutes: -5)),
+          //       child: const Text('-5 min'),
+          //     ),
+          //     const SizedBox(height: 20),
+          //     TextButton(
+          //       onPressed: () => context
+          //           .read<SessionInProgressCubit>()
+          //           .cheat(dontWait: const Duration(seconds: -10)),
+          //       child: const Text('-10 sec'),
+          //     ),
+          //   ],
+          // ),
+        ],
       ),
     );
   }
