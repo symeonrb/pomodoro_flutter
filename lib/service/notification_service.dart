@@ -23,6 +23,7 @@ class NotificationService {
     await instance._plugin.initialize(
       const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_notification'),
+        iOS: DarwinInitializationSettings(),
       ),
     );
   }
