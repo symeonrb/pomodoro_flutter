@@ -45,26 +45,6 @@ Pomodoro est une application qui propose un minuteur avec plusieurs modes pour t
 
 - **Web** 🌐 : `Non pris en charge`.
 
-### Technologies Utilisées dans Pomodoro 🚀
-
-#### Frameworks 🧩
-
-- ![Flutter][React-Native.js]
-
-#### Langages de Développement 💻
-
-- ![Dart][JavaScript.js]
-
-#### Base de Données 🗄️
-
-- <img src="https://www.gstatic.com/devrel-devsite/prod/v0e3f58103119c4df6fb3c3977dcfd0cb669bdf6385f895761c1853a4b0b11be9/firebase/images/lockup.svg" alt="Firebase" width="100"/>
-
-#### Authentification 🔐
-
-- <img src="https://www.google.fr/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google" width="100"/>
-
----
-
 ## Mise en Route
 
 Avant d'utiliser le code du projet, assurez-vous d'avoir les prérequis corrects ✅.
